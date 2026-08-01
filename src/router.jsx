@@ -2,12 +2,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Layout from "./components/layout/Layout";
 
-import Dashboard from "./pages/Dashboard";
+
 import Budget from "./pages/Budget";
 import Reports from "./pages/Reports";
 import Categories from "./pages/Categories";
 import Settings from "./pages/Settings";
 import TransactionsPage from "./pages/Transactions/TransactionsPage";
+import DashboardPage from "./pages/Dashboard/DashboardPage";
 
 export default function Router() {
 
@@ -19,7 +20,7 @@ export default function Router() {
 
                 <Route element={<Layout />}>
 
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/" element={<DashboardPage />} />
 
                     <Route
                         path="/transactions"

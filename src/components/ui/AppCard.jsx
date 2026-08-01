@@ -1,37 +1,51 @@
-﻿export default function AppCard({
+﻿// src/components/ui/AppCard.jsx
 
-    title,
-    children,
-    className = ""
-
+export default function AppCard({
+  title,
+  subtitle,
+  children,
+  className = "",
+  headerAction,
 }) {
+  return (
+    <div className={`card app-card h-100 ${className}`}>
 
-    return (
+      {(title || subtitle) && (
 
-        <div className={`card shadow-sm border-0 ${className}`}>
+        <div className="card-header bg-transparent border-0">
 
-            {title && (
+          <div className="d-flex justify-content-between align-items-start">
 
-                <div className="card-header bg-white">
+            <div>
 
-                    <h5 className="mb-0">
+              {title && (
+                <h5 className="mb-1 fw-semibold">
+                  {title}
+                </h5>
+              )}
 
-                        {title}
-
-                    </h5>
-
-                </div>
-
-            )}
-
-            <div className="card-body">
-
-                {children}
+              {subtitle && (
+                <small className="text-muted">
+                  {subtitle}
+                </small>
+              )}
 
             </div>
 
+            {headerAction}
+
+          </div>
+
         </div>
 
-    );
+      )}
 
+      <div className="card-body p-4">
+
+        {children}
+
+      </div>
+
+    </div>
+  );
 }

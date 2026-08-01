@@ -1,0 +1,196 @@
+/* ==========================================================
+   BudgetApp Design System
+   Components
+   ========================================================== */
+
+/* ==========================
+   Card
+   ========================== */
+
+.app-card {
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.app-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+
+/* ==========================
+   Button
+   ========================== */
+
+.app-button {
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+
+  min-height: 42px;
+
+  padding: .65rem 1.1rem;
+
+  border-radius: var(--radius-md);
+
+  font-size: .95rem;
+  font-weight: 600;
+
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+}
+
+.app-button:hover {
+
+  transform: translateY(-1px);
+
+  box-shadow: var(--shadow-sm);
+
+}
+
+.app-button:active {
+
+  transform: translateY(0);
+
+}
+
+.app-button__icon {
+
+  font-size: 1rem;
+
+}
+.app-button i {
+  margin-right: .5rem;
+}
+
+/* ==========================
+   Stat Card
+   ========================== */
+
+.app-stat-card {
+  height: 100%;
+}
+
+.app-stat-card__title {
+  color: var(--color-text-muted);
+  font-size: .85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.app-stat-card__value {
+  margin-top: .5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.app-stat-card__icon {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 1.4rem;
+}
+
+/* ==========================
+   Tables
+   ========================== */
+
+.app-table th {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.app-table td {
+  vertical-align: middle;
+}
+
+/* ==========================
+   Empty State
+   ========================== */
+
+.app-empty-state {
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.app-empty-state i {
+  font-size: 3rem;
+  color: var(--color-text-muted);
+}
+
+/* ==========================
+   Progress
+   ========================== */
+
+.progress {
+  height: 8px;
+  border-radius: var(--radius-lg);
+  background: #edf2f7;
+}
+
+.progress-bar {
+  border-radius: var(--radius-lg);
+}
+
+/* ==========================
+   Select
+   ========================== */
+
+.app-select {
+
+  border-radius: var(--radius-md);
+
+  border: 1px solid var(--color-border);
+
+  box-shadow: none;
+
+  transition: var(--transition-fast);
+
+}
+
+.app-select:focus {
+
+  border-color: var(--color-primary);
+
+  box-shadow: 0 0 0 .2rem rgba(37,99,235,.15);
+
+}
+
+
+/* ==========================
+   Progress
+   ========================== */
+
+.app-progress {
+
+  height:8px;
+
+  border-radius:999px;
+
+  overflow:hidden;
+
+  background:#edf2f7;
+
+}
+
+.app-progress .progress-bar{
+
+  border-radius:999px;
+
+}

@@ -1,4 +1,85 @@
-body{
-    background:#f5f6fa;
-    font-family:Segoe UI, sans-serif;
+/* ==========================================================
+   BudgetApp Design System
+   Theme Tokens
+   ========================================================== */
+
+:root {
+
+  /* ==========================
+     Brand
+     ========================== */
+
+  --color-primary: #2563eb;
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #f59e0b;
+  --color-info: #0ea5e9;
+
+  /* ==========================
+     Background
+     ========================== */
+
+  --color-background: #f6f8fb;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f8fafc;
+
+  /* ==========================
+     Sidebar
+     ========================== */
+
+  --color-sidebar: #1f2937;
+  --color-sidebar-hover: #374151;
+  --color-sidebar-active: #2563eb;
+
+  /* ==========================
+     Text
+     ========================== */
+
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-text-light: #ffffff;
+
+  /* ==========================
+     Borders
+     ========================== */
+
+  --color-border: #e2e8f0;
+
+  /* ==========================
+     Border Radius
+     ========================== */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* ==========================
+     Shadows
+     ========================== */
+
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.05);
+
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+  --shadow-lg: 0 18px 45px rgba(15, 23, 42, 0.12);
+
+  /* ==========================
+     Spacing
+     ========================== */
+
+  --space-xs: .25rem;
+  --space-sm: .5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+
+  /* ==========================
+     Transition
+     ========================== */
+
+  --transition-fast: .15s ease;
+  --transition-normal: .25s ease;
+
 }

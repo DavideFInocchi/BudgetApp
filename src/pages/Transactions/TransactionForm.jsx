@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import { useActiveCategories, useCategories } from "../../hooks/useCategories";
+import { useActiveCategories } from "../../hooks/useActiveCategories";
 
 import AppButton from "../../components/ui/AppButton";
 import AppInput from "../../components/ui/AppInput";

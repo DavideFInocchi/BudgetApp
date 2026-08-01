@@ -1,146 +1,151 @@
-/* ===== Layout ===== */
+/* ==========================================================
+   BudgetApp Design System
+   Layout
+   ========================================================== */
 
-.app-layout{
-    display:flex;
-    min-height:100vh;
+/* ==========================
+   App Layout
+   ========================== */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-background);
 }
 
-/* ===== Sidebar ===== */
+/* ==========================
+   Sidebar
+   ========================== */
 
-.sidebar{
+.sidebar {
+  width: 260px;
+  background: var(--color-sidebar);
+  color: var(--color-text-light);
 
-    width:260px;
+  display: flex;
+  flex-direction: column;
 
-    background:#1f2937;
+  padding: var(--space-lg);
 
-    color:white;
-
-    display:flex;
-
-    flex-direction:column;
-
-    padding:20px;
-
+  transition: var(--transition-normal);
 }
 
-.sidebar-logo{
-
-    font-size:22px;
-
-    font-weight:bold;
-
-    margin-bottom:35px;
-
+.sidebar-logo {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: var(--space-xl);
 }
 
-.sidebar nav{
+/* ==========================
+   Navigation
+   ========================== */
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:8px;
-
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
-.menu-item{
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
 
-    color:white;
+  padding: .8rem 1rem;
 
-    text-decoration:none;
+  border-radius: var(--radius-md);
 
-    padding:12px 16px;
+  color: var(--color-text-light);
+  text-decoration: none;
 
-    border-radius:10px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-    transition:.2s;
-
+  transition: var(--transition-fast);
 }
 
-.menu-item:hover{
-
-    background:#374151;
-
-    color:white;
-
+.menu-item:hover {
+  background: var(--color-sidebar-hover);
+  color: var(--color-text-light);
 }
 
-.menu-item.active{
-
-    background:#2563eb;
-
-    color:white;
-
+.menu-item.active {
+  background: var(--color-sidebar-active);
+  color: var(--color-text-light);
+  font-weight: 600;
 }
 
-/* ===== Contenuto ===== */
+/* ==========================
+   Main Content
+   ========================== */
 
-.app-content{
+.app-content {
+  flex: 1;
 
-    flex:1;
+  display: flex;
+  flex-direction: column;
 
-    display:flex;
-
-    flex-direction:column;
-
+  min-width: 0;
 }
 
-/* ===== Header ===== */
+/* ==========================
+   Header
+   ========================== */
 
-.app-header{
+.app-header {
+  height: 72px;
 
-    height:70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-    background:white;
+  padding: 0 var(--space-xl);
 
-    border-bottom:1px solid #ddd;
+  background: var(--color-surface);
 
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:0 30px;
-
+  border-bottom: 1px solid var(--color-border);
 }
 
-.header-user{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    font-size:18px;
-
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
-/* ===== Pagina ===== */
+/* ==========================
+   Page
+   ========================== */
 
-.page-content{
-
-    flex:1;
-
-    padding:30px;
-
+.page-content {
+  flex: 1;
+  padding: var(--space-xl);
 }
 
-.page{
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
 
-    background:white;
+/* ==========================
+   Sections
+   ========================== */
 
-    border-radius:12px;
+.page-section {
+  margin-bottom: var(--space-xl);
+}
 
-    padding:30px;
+.page-title {
+  margin-bottom: var(--space-xs);
+}
 
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
+.page-subtitle {
+  color: var(--color-text-muted);
+}
 
+/* ==========================
+   Dashboard
+   ========================== */
+
+.dashboard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
 }
