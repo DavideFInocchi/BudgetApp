@@ -8,87 +8,158 @@
  * @param {string} period.to
  * @returns {Promise<Object>}
  */
+
+import { toDashboardTransaction } from "../mappers/transactionMapper";
+import transactionService from "./transactionService";
+
+// ======================================================
+// Dashboard Loader
+// ======================================================
 export async function getDashboard(period) {
 
-  const [
-    summary,
-    cashFlow,
-    categoryExpenses,
-    budgets,
-    latestTransactions,
-  ] = await Promise.all([
-    loadSummary(period),
-    loadCashFlow(period),
-    loadCategoryExpenses(period),
-    loadBudgets(period),
-    loadLatestTransactions(period),
-  ]);
+    const transactions = await transactionService.getAll();
 
-  return {
-    period,
-    summary,
-    cashFlow,
-    categoryExpenses,
-    budgets,
-    latestTransactions,
-  };
+    const dashboard = {
+
+        period,
+
+        summary: buildSummary(transactions),
+
+        cashFlow: buildCashFlow(transactions),
+
+        categories: buildCategories(transactions),
+
+        budgets: await loadBudgets(),
+
+        latestTransactions: buildLatestTransactions(transactions),
+
+    };
+
+    return dashboard;
+
 }
 
-async function loadSummary(period) {
-  // TODO: Query Supabase
+function calculateTotals(transactions) {
 
-  return {
-    income: 3200,
-    expense: 2150,
-    balance: 1050,
-    saving: 1050,
-    transactionsCount: 58,
-  };
+    let income = 0;
+    let expense = 0;
+
+    transactions.forEach(transaction => {
+
+        const amount = Number(transaction.amount);
+
+        if (amount > 0) {
+
+            income += amount;
+
+        } else if (amount < 0) {
+
+            expense += Math.abs(amount);
+
+        }
+
+    });
+
+    return {
+
+        income,
+
+        expense,
+
+    };
+
 }
 
-async function loadCashFlow(period) {
-  // TODO: Query Supabase
+// ======================================================
+// Summary
+// ======================================================
+function buildSummary(transactions) {
 
-  return [
-    {
-      label: "Luglio",
-      income: 3200,
-      expense: 2150,
-    },
-  ];
+    const { income, expense } =
+        calculateTotals(transactions);
+
+    return {
+
+        income,
+
+        expense,
+
+        balance: income - expense,
+
+        saving: income - expense,
+
+        transactionsCount: transactions.length,
+
+    };
+
 }
 
-async function loadCategoryExpenses(period) {
-  // TODO: Query Supabase
+// ======================================================
+// Cash Flow
+// ======================================================
 
-  return [
-    {
-      categoryId: 1,
-      name: "Alimentari",
-      color: "#4CAF50",
-      total: 620,
-      percentage: 29,
-    },
-    {
-      categoryId: 2,
-      name: "Casa",
-      color: "#2196F3",
-      total: 450,
-      percentage: 21,
-    },
-    {
-      categoryId: 3,
-      name: "Trasporti",
-      color: "#FF9800",
-      total: 280,
-      percentage: 13,
-    },
-  ];
+function buildCashFlow(transactions) {
+
+    const { income, expense } =
+        calculateTotals(transactions);
+
+    return [
+
+        {
+
+            label: "Totale",
+
+            income,
+
+            expense,
+
+        },
+
+    ];
+
 }
 
-async function loadBudgets(period) {
-  // TODO: Query Supabase
+function buildCategories(transactions) {
 
+  
+    const map = new Map();
+
+    transactions
+        .filter(t => t.amount < 0)
+        .forEach(transaction => {
+
+            const key = transaction.category_name;
+
+            if (!map.has(key)) {
+
+                map.set(key, {
+
+                    id: key,
+
+                    name: transaction.category_name,
+
+                    color: transaction.category_color,
+
+                    total: 0,
+
+                });
+
+            }
+
+            map.get(key).total += Math.abs(transaction.amount);
+
+        });
+
+    const result = [...map.values()];
+
+return result;
+
+}
+
+async function loadBudgets() {
+ // TODO:
+// Replace mock data with budgetService
+// after importing budgets into Supabase.
   return [
     {
       categoryId: 1,
@@ -113,49 +184,14 @@ async function loadBudgets(period) {
   ];
 }
 
-async function loadLatestTransactions(period) {
-  // TODO: Query Supabase
 
-  return [
-    {
-      id: 1,
-      date: "2026-07-30",
-      description: "Esselunga",
-      category: "Alimentari",
-      amount: -54.8,
-      movementType: "EXPENSE",
-    },
-    {
-      id: 2,
-      date: "2026-07-29",
-      description: "Stipendio",
-      category: "Lavoro",
-      amount: 2200,
-      movementType: "INCOME",
-    },
-    {
-      id: 3,
-      date: "2026-07-28",
-      description: "Carburante",
-      category: "Trasporti",
-      amount: -75.2,
-      movementType: "EXPENSE",
-    },
-    {
-      id: 4,
-      date: "2026-07-27",
-      description: "Netflix",
-      category: "Intrattenimento",
-      amount: -12.99,
-      movementType: "EXPENSE",
-    },
-    {
-      id: 5,
-      date: "2026-07-26",
-      description: "Farmacia",
-      category: "Salute",
-      amount: -28.5,
-      movementType: "EXPENSE",
-    },
-  ];
+
+function buildLatestTransactions(transactions) {
+
+return transactions
+
+    .slice(0, 5)
+
+    .map(toDashboardTransaction);
+
 }

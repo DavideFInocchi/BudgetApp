@@ -55,7 +55,7 @@ export default function DashboardPage() {
 
             <div className="col-12 col-xl-6">
                 <DashboardCategoryChart
-                    categoryExpenses={data.categoryExpenses}
+                    categoryExpenses={data.categories}
                 />
             </div>
 

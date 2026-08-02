@@ -27,61 +27,83 @@ const transactionService = {
 
     
 
-    async create(transaction) {
+async create(transaction) {
 
-        const { data, error } = await supabase
+    const { data, error } = await supabase
 
-            .from(TABLE)
+        .from(TABLE)
 
-            .insert(transaction)
+        .insert(transaction)
 
-            .select()
+        .select()
 
-            .single();
+        .single();
+
+    if (error)
+        throw error;
+
+    return data;
+
+},
+
+async update(id, transaction) {
+
+    const { data, error } = await supabase
+
+        .from(TABLE)
+
+        .update(transaction)
+
+        .eq("id", id)
+
+        .select()
+
+        .single();
+
+    if (error)
+        throw error;
+
+    return data;
+
+},
+
+async remove(id) {
+
+    const { error } = await supabase
+
+        .from(TABLE)
+
+        .delete()
+
+        .eq("id", id);
 
         if (error)
             throw error;
-
-        return data;
 
     },
 
-    async update(id, transaction) {
 
-        const { data, error } = await supabase
 
-            .from(TABLE)
+async getLatest(limit = 5) {
 
-            .update(transaction)
+    const { data, error } = await supabase
 
-            .eq("id", id)
+        .from("vw_transactions")
 
-            .select()
+        .select("*")
 
-            .single();
+        .order("transaction_date", { ascending: false })
 
-        if (error)
-            throw error;
+        .order("created_at", { ascending: false })
 
-        return data;
+        .limit(limit);
 
-    },
+    if (error)
+        throw error;
 
-    async remove(id) {
+    return data;
 
-        const { error } = await supabase
-
-            .from(TABLE)
-
-            .delete()
-
-            .eq("id", id);
-
-        if (error)
-            throw error;
-
-    }
-
+}
 };
 
 export default transactionService;
