@@ -7,19 +7,16 @@ import { Link } from "react-router-dom";
 export default function DashboardBudget({
     budgets = [],
 }) {
-
+console.log(budgets);
     return (
 
         <AppCard
             title="Budget"
             headerAction={
-                <Link
-                    to="/budget"
-                    className="text-decoration-none fw-semibold"
-                >
-                    Vedi tutti →
-                </Link>
-            }
+    <span>
+        Test
+    </span>
+}
         >     
       
 
@@ -32,89 +29,28 @@ export default function DashboardBudget({
 
             ) : (
 
-                budgets.map((budget, index) => (
+                budgets.map((budget, index) => {
 
-                    <div
-                        key={budget.categoryId}
-                        className={
-                        index === budgets.length - 1
-                            ? ""
-                            : "pb-4 mb-4 border-bottom"
-                        }
-                    >
+                    console.log(index, budget);
 
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                    return (
 
-                        <div className="d-flex align-items-center">
+                        <div
+                            key={budget.id}
+                            className={
+                                index === budgets.length - 1
+                                    ? ""
+                                    : "pb-4 mb-4 border-bottom"
+                            }
+                        >
 
-                            <span
-                                className="rounded-circle me-2"
-                                style={{
-                                    width: 10,
-                                    height: 10,
-                                    backgroundColor: budget.color,
-                                    display: "inline-block",
-                                }}
-                            />
-
-                            <span className="fw-semibold">
-
-                                {budget.category}
-
-                            </span>
+                            ...
 
                         </div>
 
-                        <span className="text-muted fw-semibold">
+                    );
 
-                            {budget.progress}%
-
-                        </span>
-
-                    </div>
-                        <div className="my-2">
-
-                            <AppProgress
-                                value={budget.progress}
-                                variant={
-                                    budget.exceeded
-                                        ? "danger"
-                                        : "success"
-                                }
-                            />
-
-                        </div>
-                        
-
-                        <div className="d-flex justify-content-between mt-2">
-
-                            <small className="text-muted">
-
-                                {formatCurrency(budget.spent)}
-                                {" / "}
-                                {formatCurrency(budget.budget)}
-
-                            </small>
-
-                            <small
-                                className={
-                                    budget.exceeded
-                                        ? "text-danger"
-                                        : "text-success"
-                                }
-                            >
-
-                                {budget.exceeded
-                                    ? "Budget superato"
-                                    : `Restano ${formatCurrency(budget.remaining)}`}
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                ))
+                })
 
             )}
 

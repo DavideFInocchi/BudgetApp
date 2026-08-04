@@ -1,4 +1,7 @@
 // src/pages/Dashboard/DashboardPage.jsx
+import { useEffect, useState } from "react";
+import { useAvailablePeriods } from "../../hooks/useAvailablePeriods";
+import { buildPeriods } from "../../utils/periodUtils";
 
 import DashboardHeader from "./DashboardHeader";
 import DashboardSummary from "./DashboardSummary";
@@ -10,13 +13,29 @@ import DashboardLatestTransactions from "./DashboardLatestTransactions";
 import { useDashboard } from "../../hooks/useDashboard";
 import AppSpinner from "../../components/ui/AppSpinner";
 import AppCard from "../../components/ui/AppCard";
-import { useState } from "react";
 import { getCurrentMonth } from "../../utils/periodUtils";
 
 export default function DashboardPage() {
 
   const [period, setPeriod] =
     useState(getCurrentMonth());
+    const { data: availablePeriods } = useAvailablePeriods();
+
+    const periods = buildPeriods(availablePeriods ?? []); 
+    useEffect(() => {
+
+        if (periods.length === 0)
+            return;
+
+        const exists = periods.some(p => p.key === period.key);
+
+        if (!exists) {
+
+            setPeriod(periods[0]);
+
+        }
+
+    }, [periods]);
   const { data, isLoading, isError, error } = useDashboard(period);
 
   
@@ -41,6 +60,7 @@ export default function DashboardPage() {
       {/* Header */}
       <DashboardHeader
           period={period}
+          periods={periods}
           onPeriodChange={setPeriod}
       />
 

@@ -1,16 +1,14 @@
 import AppButton from "../../components/ui/AppButton";
 import AppSelect from "../../components/ui/AppSelect";
-import {
-    getCurrentMonth,
-    getCurrentYear,
-    getAvailablePeriods,
-} from "../../utils/periodUtils";
+import { buildPeriods } from "../../utils/periodUtils";
+import { useAvailablePeriods } from "../../hooks/useAvailablePeriods";
 
 export default function DashboardHeader({
   period,
+  periods,
   onPeriodChange,
 }) {
-  const periods = getAvailablePeriods();
+
   return (
     <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
 
@@ -28,11 +26,11 @@ export default function DashboardHeader({
 
       <div className="d-flex gap-2 mt-3 mt-lg-0">
 
-        <AppSelect
+      <AppSelect
 
           className="w-auto"
 
-          value={period.key}
+          value={period?.key ?? ""}
 
           onChange={(e) => {
 
@@ -42,7 +40,11 @@ export default function DashboardHeader({
 
               );
 
-              onPeriodChange(selected);
+              if (selected) {
+
+                  onPeriodChange(selected);
+
+              }
 
           }}
 
@@ -57,7 +59,8 @@ export default function DashboardHeader({
               }))
 
           }
-        />
+
+      />
 
         <AppButton
           icon="plus-lg"

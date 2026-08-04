@@ -99,3 +99,36 @@ export function getAvailablePeriods() {
     ];
 
 }
+
+export function buildPeriods(rows) {
+
+    const periods = [];
+    const years = new Set();
+
+    rows.forEach(row => {
+
+        const [year, month] = row.period_date
+            .split("-")
+            .map(Number);
+
+        periods.push(
+            createMonthPeriod(year, month)
+        );
+
+        years.add(year);
+
+    });
+
+    [...years].forEach(year => {
+
+        periods.push(
+            createYearPeriod(year)
+        );
+
+    });
+
+    return periods.sort(
+        (a, b) => b.from.getTime() - a.from.getTime()
+    );
+
+}

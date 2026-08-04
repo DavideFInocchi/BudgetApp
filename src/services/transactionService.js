@@ -8,51 +8,70 @@ const transactionService = {
 
     async getAll() {
 
-    const { data, error } = await supabase
+        const { data, error } = await supabase
 
-        .from("vw_transactions")
+            .from("vw_transactions")
 
-        .select("*")
+            .select("*")
 
-        .order("transaction_date", { ascending: false })
+            .order("transaction_date", { ascending: false })
 
-        .order("created_at", { ascending: false });
-    if (error)
-        throw error;
+            .order("created_at", { ascending: false });
+        if (error)
+            throw error;
 
-    return data;
+        return data;
 
     
-},
+    },
 
-async getByPeriod(period) {
+    async getByPeriod(period) {
+
+        const { data, error } = await supabase
+
+            .from("vw_transactions")
+
+            .select("*")
+
+            .gte(
+                "transaction_date",
+                period.from.toISOString().split("T")[0]
+            )
+
+            .lte(
+                "transaction_date",
+                period.to.toISOString().split("T")[0]
+            )
+
+            .order("transaction_date", { ascending: false })
+
+            .order("created_at", { ascending: false });
+
+        if (error)
+            throw error;
+
+        return data;
+
+    },
+    
+    async getAvailablePeriods() {
 
     const { data, error } = await supabase
 
-        .from("vw_transactions")
+        .from("vw_periods")
 
         .select("*")
 
-        .gte(
-            "transaction_date",
-            period.from.toISOString().split("T")[0]
-        )
+        .order("period_date", { ascending: false });
 
-        .lte(
-            "transaction_date",
-            period.to.toISOString().split("T")[0]
-        )
+        if (error)
+            throw error;
 
-        .order("transaction_date", { ascending: false })
+        return data;
 
-        .order("created_at", { ascending: false });
+    },
 
-    if (error)
-        throw error;
-
-    return data;
-
-},
+    
 
 async create(transaction) {
 
