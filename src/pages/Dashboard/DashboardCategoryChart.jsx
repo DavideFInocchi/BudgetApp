@@ -1,7 +1,7 @@
 import AppCard from "../../components/ui/AppCard";
 import { Doughnut } from "react-chartjs-2";
 import { COLORS } from "../../constants/colors";
-
+import { formatCurrency } from "../../utils/currency";
 
 export default function DashboardCategoryChart({
     categoryExpenses = [],
@@ -58,12 +58,7 @@ export default function DashboardCategoryChart({
 
         <AppCard title="Spese per categoria">
 
-            <div
-                style={{
-                    height:300,
-                    padding: "10px",
-                }}
-            >
+            <div className="p-2" style={{ height: 300 }}>
 
                 <Doughnut
                     data={data}
@@ -73,10 +68,10 @@ export default function DashboardCategoryChart({
             </div>
             <div className="mt-4">
 
-            {categoryExpenses.map((expense) => (
+            {categoryExpenses.map((category) => (
 
                 <div
-                    key={expense.categoryId}
+                    key={category.id}
                     className="d-flex justify-content-between align-items-center py-2"
                 >
 
@@ -87,22 +82,20 @@ export default function DashboardCategoryChart({
                             style={{
                                 width: 10,
                                 height: 10,
-                                backgroundColor: expense.color,
+                                backgroundColor: category.color,
                             }}
                         />
 
                         <span>
 
-                            {expense.name}
+                            {category.name}
 
                         </span>
 
                     </div>
 
                     <strong>
-
-                        € {expense.total.toLocaleString("it-IT")}
-
+                        € {category.total.toLocaleString("it-IT")}
                     </strong>
 
                 </div>

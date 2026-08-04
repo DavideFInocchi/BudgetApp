@@ -11,9 +11,12 @@ import { useDashboard } from "../../hooks/useDashboard";
 import AppSpinner from "../../components/ui/AppSpinner";
 import AppCard from "../../components/ui/AppCard";
 import { useState } from "react";
+import { getCurrentMonth } from "../../utils/periodUtils";
 
 export default function DashboardPage() {
-  const [period, setPeriod] = useState("month");
+
+  const [period, setPeriod] =
+    useState(getCurrentMonth());
   const { data, isLoading, isError, error } = useDashboard(period);
 
   
@@ -47,19 +50,17 @@ export default function DashboardPage() {
       {/* Grafici */}
       <div className="row g-4 mb-4">
 
-        <div className="row g-4 mb-4">
+          <div className="col-12 col-xl-6">
+              <DashboardCashFlowChart
+                  cashFlow={data.cashFlow}
+              />
+          </div>
 
-            <div className="col-12 col-xl-6">
-                <DashboardCashFlowChart cashFlow={data.cashFlow} />
-            </div>
-
-            <div className="col-12 col-xl-6">
-                <DashboardCategoryChart
-                    categoryExpenses={data.categories}
-                />
-            </div>
-
-            </div>
+          <div className="col-12 col-xl-6">
+              <DashboardCategoryChart
+                  categoryExpenses={data.categories}
+              />
+          </div>
 
       </div>
 

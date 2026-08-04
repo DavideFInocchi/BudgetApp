@@ -17,15 +17,42 @@ const transactionService = {
         .order("transaction_date", { ascending: false })
 
         .order("created_at", { ascending: false });
-        console.log(data);
+    if (error)
+        throw error;
+
+    return data;
+
+    
+},
+
+async getByPeriod(period) {
+
+    const { data, error } = await supabase
+
+        .from("vw_transactions")
+
+        .select("*")
+
+        .gte(
+            "transaction_date",
+            period.from.toISOString().split("T")[0]
+        )
+
+        .lte(
+            "transaction_date",
+            period.to.toISOString().split("T")[0]
+        )
+
+        .order("transaction_date", { ascending: false })
+
+        .order("created_at", { ascending: false });
+
     if (error)
         throw error;
 
     return data;
 
 },
-
-    
 
 async create(transaction) {
 

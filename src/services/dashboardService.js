@@ -11,13 +11,13 @@
 
 import { toDashboardTransaction } from "../mappers/transactionMapper";
 import transactionService from "./transactionService";
-
+import budgetService from "./budgetService";
 // ======================================================
 // Dashboard Loader
 // ======================================================
 export async function getDashboard(period) {
 
-    const transactions = await transactionService.getAll();
+    const transactions = await transactionService.getByPeriod(period);
 
     const dashboard = {
 
@@ -29,7 +29,7 @@ export async function getDashboard(period) {
 
         categories: buildCategories(transactions),
 
-        budgets: await loadBudgets(),
+        budgets: await loadBudgets(period),
 
         latestTransactions: buildLatestTransactions(transactions),
 
@@ -156,34 +156,11 @@ return result;
 
 }
 
-async function loadBudgets() {
- // TODO:
-// Replace mock data with budgetService
-// after importing budgets into Supabase.
-  return [
-    {
-      categoryId: 1,
-      category: "Alimentari",
-      color: "#4CAF50",
-      budget: 800,
-      spent: 620,
-      remaining: 180,
-      progress: 78,
-      exceeded: false,
-    },
-    {
-      categoryId: 2,
-      category: "Casa",
-      color: "#2196F3",
-      budget: 500,
-      spent: 450,
-      remaining: 50,
-      progress: 90,
-      exceeded: false,
-    },
-  ];
-}
+async function loadBudgets(period) {
 
+    return await budgetService.getByPeriod(period);
+
+}
 
 
 function buildLatestTransactions(transactions) {
