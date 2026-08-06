@@ -12,16 +12,35 @@
 import { toDashboardTransaction } from "../mappers/transactionMapper";
 import transactionService from "./transactionService";
 import budgetService from "./budgetService";
+import { buildPeriods } from "../utils/periodUtils";
+import { toDashboardBudget } from "../mappers/budgetMapper";
 // ======================================================
 // Dashboard Loader
 // ======================================================
 export async function getDashboard(period) {
 
-    const transactions = await transactionService.getByPeriod(period);
+    const availablePeriods =
+        await transactionService.getAvailablePeriods();
 
-    const dashboard = {
+    const periods =
+        buildPeriods(availablePeriods);
 
-        period,
+    const selectedPeriod =
+        period ?? periods[0];
+
+
+
+    const transactions =
+        await transactionService.getByPeriod(selectedPeriod);
+
+    const budgets =
+        await budgetService.getByPeriod(selectedPeriod);
+
+    return {
+
+        periods,
+
+        selectedPeriod,
 
         summary: buildSummary(transactions),
 
@@ -29,13 +48,11 @@ export async function getDashboard(period) {
 
         categories: buildCategories(transactions),
 
-        budgets: await loadBudgets(period),
-
+        budgets: budgets.map(toDashboardBudget),
+        
         latestTransactions: buildLatestTransactions(transactions),
 
     };
-
-    return dashboard;
 
 }
 
@@ -156,11 +173,7 @@ return result;
 
 }
 
-async function loadBudgets(period) {
 
-    return await budgetService.getByPeriod(period);
-
-}
 
 
 function buildLatestTransactions(transactions) {
@@ -172,3 +185,4 @@ return transactions
     .map(toDashboardTransaction);
 
 }
+

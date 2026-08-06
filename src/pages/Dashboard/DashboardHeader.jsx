@@ -1,7 +1,7 @@
 import AppButton from "../../components/ui/AppButton";
 import AppSelect from "../../components/ui/AppSelect";
-import { buildPeriods } from "../../utils/periodUtils";
-import { useAvailablePeriods } from "../../hooks/useAvailablePeriods";
+
+
 
 export default function DashboardHeader({
   period,

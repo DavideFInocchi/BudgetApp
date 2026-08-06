@@ -5,6 +5,7 @@ export default function AppCard({
   subtitle,
   children,
   className = "",
+  headerAction,
 }) {
   return (
     <div className={`card app-card h-100 ${className}`}>
@@ -31,7 +32,7 @@ export default function AppCard({
 
             </div>
 
-     
+            {headerAction}
 
           </div>
 

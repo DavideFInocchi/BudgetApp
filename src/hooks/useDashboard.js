@@ -5,21 +5,9 @@ export function useDashboard(period) {
 
     return useQuery({
 
-        queryKey: [
-
-            "dashboard",
-
-            period?.type,
-
-            period?.from?.toISOString(),
-
-            period?.to?.toISOString(),
-
-        ],
+        queryKey: ["dashboard", period?.key],
 
         queryFn: () => getDashboard(period),
-
-        enabled: !!period,
 
     });
 

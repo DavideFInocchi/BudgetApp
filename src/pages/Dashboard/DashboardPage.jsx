@@ -1,7 +1,8 @@
 // src/pages/Dashboard/DashboardPage.jsx
-import { useEffect, useState } from "react";
-import { useAvailablePeriods } from "../../hooks/useAvailablePeriods";
-import { buildPeriods } from "../../utils/periodUtils";
+
+import { useState } from "react";
+
+import { useDashboard } from "../../hooks/useDashboard";
 
 import DashboardHeader from "./DashboardHeader";
 import DashboardSummary from "./DashboardSummary";
@@ -10,97 +11,119 @@ import DashboardCategoryChart from "./DashboardCategoryChart";
 import DashboardBudget from "./DashboardBudget";
 import DashboardLatestTransactions from "./DashboardLatestTransactions";
 
-import { useDashboard } from "../../hooks/useDashboard";
 import AppSpinner from "../../components/ui/AppSpinner";
 import AppCard from "../../components/ui/AppCard";
-import { getCurrentMonth } from "../../utils/periodUtils";
 
 export default function DashboardPage() {
 
-  const [period, setPeriod] =
-    useState(getCurrentMonth());
-    const { data: availablePeriods } = useAvailablePeriods();
+    const [period, setPeriod] = useState(null);
 
-    const periods = buildPeriods(availablePeriods ?? []); 
-    useEffect(() => {
+    const {
 
-        if (periods.length === 0)
-            return;
+        data,
 
-        const exists = periods.some(p => p.key === period.key);
+        isLoading,
 
-        if (!exists) {
+        isError,
 
-            setPeriod(periods[0]);
+        error,
 
-        }
+    } = useDashboard(period);
 
-    }, [periods]);
-  const { data, isLoading, isError, error } = useDashboard(period);
+    if (isLoading) {
 
-  
+        return <AppSpinner />;
 
-  if (isLoading) {
-    return <AppSpinner />;
-  }
+    }
 
-  if (isError) {
+    if (isError) {
+
+        return (
+
+            <AppCard>
+
+                <p className="text-danger mb-0">
+
+                    {error?.message}
+
+                </p>
+
+            </AppCard>
+
+        );
+
+    }
+console.log(data.budgets);
     return (
-      <AppCard>
-        <p className="text-danger mb-0">
-          {error?.message || "Errore durante il caricamento della dashboard."}
-        </p>
-      </AppCard>
+
+        <div className="container-fluid">
+
+            <DashboardHeader
+
+                period={data.selectedPeriod}
+
+                periods={data.periods}
+
+                onPeriodChange={setPeriod}
+
+            />
+
+            <DashboardSummary
+
+                summary={data.summary}
+
+            />
+
+            <div className="row g-4 mb-4">
+
+                <div className="col-12 col-xl-6">
+
+                    <DashboardCashFlowChart
+
+                        cashFlow={data.cashFlow}
+
+                    />
+
+                </div>
+
+                <div className="col-12 col-xl-6">
+
+                    <DashboardCategoryChart
+
+                        categoryExpenses={data.categories}
+
+                    />
+
+                </div>
+
+            </div>
+
+            <div className="row g-4">
+
+                <div className="col-12 col-xl-5">
+
+                    <DashboardBudget
+
+                        budgets={data.budgets}
+
+                    />
+
+                </div>
+
+                <div className="col-12 col-xl-7">
+
+                    <DashboardLatestTransactions
+
+                        transactions={data.latestTransactions}
+
+                    />
+
+                </div>
+
+            </div>
+
+        </div>
+
     );
-  }
 
-  return (
-    <div className="container-fluid">
-
-      {/* Header */}
-      <DashboardHeader
-          period={period}
-          periods={periods}
-          onPeriodChange={setPeriod}
-      />
-
-      {/* KPI */}
-      <DashboardSummary summary={data.summary} />
-
-      {/* Grafici */}
-      <div className="row g-4 mb-4">
-
-          <div className="col-12 col-xl-6">
-              <DashboardCashFlowChart
-                  cashFlow={data.cashFlow}
-              />
-          </div>
-
-          <div className="col-12 col-xl-6">
-              <DashboardCategoryChart
-                  categoryExpenses={data.categories}
-              />
-          </div>
-
-      </div>
-
-      {/* Budget + Ultime transazioni */}
-      <div className="row g-4">
-
-        <div className="col-12 col-xl-5">
-          <DashboardBudget
-              budgets={data.budgets}
-          />
-        </div>
-
-        <div className="col-12 col-xl-7">
-          <DashboardLatestTransactions
-              transactions={data.latestTransactions}
-          />
-        </div>
-
-      </div>
-
-    </div>
-  );
 }

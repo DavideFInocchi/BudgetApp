@@ -70,39 +70,12 @@ export function getCurrentYear() {
 
 }
 
-export function getAvailablePeriods() {
 
-    return [
-
-        createMonthPeriod(2025, 3),
-
-        createMonthPeriod(2025, 4),
-
-        createMonthPeriod(2025, 5),
-
-        createMonthPeriod(2025, 6),
-
-        createMonthPeriod(2025, 7),
-
-        createMonthPeriod(2025, 8),
-
-        createMonthPeriod(2025, 9),
-
-        createMonthPeriod(2025, 10),
-
-        createMonthPeriod(2025, 11),
-
-        createMonthPeriod(2025, 12),
-
-        createYearPeriod(2025),
-
-    ];
-
-}
 
 export function buildPeriods(rows) {
 
     const periods = [];
+
     const years = new Set();
 
     rows.forEach(row => {
