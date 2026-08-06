@@ -21,7 +21,7 @@ export default function CategoryModal({
     } = useCategories();
 
     const handleSubmit = async (data) => {
-
+         console.log("FORM DATA", data);
         const toastId = toastService.loading(
 
             category
@@ -34,12 +34,14 @@ export default function CategoryModal({
 
             if (category) {
 
-                await update.mutateAsync({
+                const result = await update.mutateAsync({
 
                     id: category.id,
                     category: data
 
                 });
+
+                console.log("RESULT", result);
 
                 toastService.success("Categoria aggiornata.");
 

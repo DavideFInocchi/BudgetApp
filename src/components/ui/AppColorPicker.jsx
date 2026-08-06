@@ -65,12 +65,12 @@ const AppColorPicker = forwardRef(function AppColorPicker({
                     ref={ref}
                     id={inputId}
                     type="color"
+                    {...props}
                     value={currentColor}
                     className={`form-control form-control-color ${error ? "is-invalid" : ""} ${className}`}
                     aria-label={label ?? "Seleziona colore"}
                     onChange={handleColorChange}
                     onInput={handleColorInput}
-                    {...props}
                 />
 
                 <span className="input-group-text font-monospace">

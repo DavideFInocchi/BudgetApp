@@ -29,7 +29,7 @@ export default function CategoryForm({
         defaultValues: {
 
             name: initialValues.name ?? "",
-            movement_type: initialValues.movement_type ?? "Expense",
+            movement_type: initialValues.movement_type ?? "Uscita",
             icon: initialValues.icon ?? "wallet2",
             color: initialValues.color ?? "#0d6efd",
             active: initialValues.active ?? true,
