@@ -1,25 +1,16 @@
-import AppEmptyState from "../../components/ui/AppEmptyState";
+import AppInput from "../../components/ui/AppInput";
 
 import { formatCurrency } from "../../utils/currency";
 
 export default function BudgetConfigurationTable({
 
-    budgets = []
+    budgets = [],
+
+    editable = false,
+
+    onBudgetChange
 
 }) {
-
-    if (budgets.length === 0) {
-
-        return (
-
-            <AppEmptyState
-                title="Nessun budget"
-                description="Non esiste ancora un budget per il periodo selezionato."
-            />
-
-        );
-
-    }
 
     return (
 
@@ -71,11 +62,47 @@ export default function BudgetConfigurationTable({
 
                         </td>
 
-                        <td className="text-end">
+                    <td style={{ width: 180 }}>
 
-                            {formatCurrency(budget.budget)}
+                        {editable ? (
 
-                        </td>
+                            <AppInput
+
+                                type="number"
+
+                                className="text-end"
+
+                                value={budget.budget}
+
+                                onChange={(event) =>
+
+                                    onBudgetChange(
+
+                                        budget.id,
+
+                                        {
+
+                                            budget: Number(event.target.value)
+
+                                        }
+
+                                    )
+
+                                }
+
+                            />
+
+                        ) : (
+
+                            <div className="text-end">
+
+                                {formatCurrency(budget.budget)}
+
+                            </div>
+
+                        )}
+
+                    </td>
 
                     </tr>
 

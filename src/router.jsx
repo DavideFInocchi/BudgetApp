@@ -2,14 +2,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Layout from "./components/layout/Layout";
 
-
-import Budget from "./pages/Budget";
 import Reports from "./pages/Reports";
 import Categories from "./pages/Categories";
 import Settings from "./pages/Settings";
 import TransactionsPage from "./pages/Transactions/TransactionsPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
-
+import BudgetPage from "./pages/Budget/BudgetPage";
 export default function Router() {
 
     return (
@@ -29,7 +27,7 @@ export default function Router() {
 
                     <Route
                         path="/budget"
-                        element={<Budget />}
+                        element={<BudgetPage />}
                     />
 
                     <Route
