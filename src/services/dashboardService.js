@@ -19,28 +19,13 @@ import { toDashboardBudget } from "../mappers/budgetMapper";
 // ======================================================
 export async function getDashboard(period) {
 
-    const availablePeriods =
-        await transactionService.getAvailablePeriods();
-
-    const periods =
-        buildPeriods(availablePeriods);
-
-    const selectedPeriod =
-        period ?? periods[0];
-
-
-
     const transactions =
-        await transactionService.getByPeriod(selectedPeriod);
+        await transactionService.getByPeriod(period);
 
     const budgets =
-        await budgetService.getByPeriod(selectedPeriod);
+        await budgetService.getByPeriod(period);
 
     return {
-
-        periods,
-
-        selectedPeriod,
 
         summary: buildSummary(transactions),
 
@@ -49,7 +34,7 @@ export async function getDashboard(period) {
         categories: buildCategories(transactions),
 
         budgets: budgets.map(toDashboardBudget),
-        
+
         latestTransactions: buildLatestTransactions(transactions),
 
     };

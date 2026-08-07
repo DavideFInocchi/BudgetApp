@@ -1,8 +1,9 @@
 // src/pages/Dashboard/DashboardPage.jsx
 
-import { useState } from "react";
 
 import { useDashboard } from "../../hooks/useDashboard";
+import { usePeriods } from "../../hooks/usePeriods";
+
 
 import DashboardHeader from "./DashboardHeader";
 import DashboardSummary from "./DashboardSummary";
@@ -15,9 +16,19 @@ import AppSpinner from "../../components/ui/AppSpinner";
 import AppCard from "../../components/ui/AppCard";
 
 export default function DashboardPage() {
+    const {
 
-    const [period, setPeriod] = useState(null);
+        periods,
 
+        selectedPeriod,
+
+        setSelectedPeriod,
+
+        isLoading: periodsLoading,
+
+        error: periodsError,
+
+    } = usePeriods();
     const {
 
         data,
@@ -28,15 +39,15 @@ export default function DashboardPage() {
 
         error,
 
-    } = useDashboard(period);
+    } = useDashboard(selectedPeriod);
 
-    if (isLoading) {
+    if (periodsLoading || isLoading) {
 
         return <AppSpinner />;
 
     }
 
-    if (isError) {
+    if (periodsError || isError) {
 
         return (
 
@@ -44,7 +55,7 @@ export default function DashboardPage() {
 
                 <p className="text-danger mb-0">
 
-                    {error?.message}
+                    {periodsError?.message ?? error?.message}
 
                 </p>
 
@@ -60,11 +71,11 @@ console.log(data.budgets);
 
             <DashboardHeader
 
-                period={data.selectedPeriod}
+                period={selectedPeriod}
 
-                periods={data.periods}
+                periods={periods}
 
-                onPeriodChange={setPeriod}
+                onPeriodChange={setSelectedPeriod}
 
             />
 

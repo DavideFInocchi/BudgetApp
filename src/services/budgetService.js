@@ -3,6 +3,7 @@ import { supabase } from "./supabase";
 
 const MONTH_TABLE = "vw_budget_metrics";
 const YEAR_TABLE = "vw_budget_metrics_year";
+const CONFIGURATION_TABLE = "vw_budget_configuration";
 const budgetService = {
 
     async getAll() {
@@ -91,8 +92,30 @@ const budgetService = {
 
         return data;
 
-    }
+    },
+    async getConfigurationByMonth(period) {
 
+        const { data, error } = await supabase
+
+            .from(CONFIGURATION_TABLE)
+
+            .select("*")
+
+            .eq(
+                "month",
+                period.from.toISOString().split("T")[0]
+            )
+
+            .order("category_name", {
+                ascending: true,
+            });
+
+        if (error)
+            throw error;
+
+        return data;
+
+    }
 };
 
 
