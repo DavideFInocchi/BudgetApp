@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-import { usePeriods } from "../../hooks/usePeriods";
+import { useBudgetPeriods } from "../../hooks/useBudgetPeriods";
 import { useBudgetConfiguration } from "../../hooks/useBudgetConfiguration";
 
 import AppCard from "../../components/ui/AppCard";
 import AppSpinner from "../../components/ui/AppSpinner";
 
-import DashboardHeader from "../Dashboard/DashboardHeader";
+import BudgetToolbar from "./BudgetToolbar";
 import BudgetConfigurationTable from "./BudgetConfigurationTable";
 import BudgetEmptyState from "./BudgetEmptyState";
 
@@ -20,14 +20,21 @@ export default function BudgetPage() {
         isLoading: periodsLoading,
         error: periodsError,
 
-    } = usePeriods();
+    } = useBudgetPeriods();
 
     const {
 
         data: configuration = [],
+
         isLoading,
+
         isError,
+
         error,
+
+        createMonth,
+
+        saveMonth
 
     } = useBudgetConfiguration(selectedPeriod);
 
@@ -61,7 +68,78 @@ export default function BudgetPage() {
         });
 
     };
+    const handleCopy = async () => {
 
+        console.log("CLICK");
+
+        try {
+
+            console.log("MUTATION");
+
+            const result = await createMonth.mutateAsync({
+
+                period: selectedPeriod,
+
+                copy: true
+
+            });
+
+            console.log("RESULT", result);
+
+        } catch (error) {
+
+            console.error("ERROR", error);
+
+        }
+    
+console.log(selectedPeriod);
+console.log(selectedPeriod.from);
+console.log(selectedPeriod.to);
+    };
+    const handleCreate = async () => {
+
+        try {
+
+            const result = await createMonth.mutateAsync({
+
+                period: selectedPeriod,
+
+                copy: false
+
+            });
+
+            console.log(result);
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    };
+    const handleSave = async () => {
+
+        try {
+
+            const result = await saveMonth.mutateAsync({
+
+                period: selectedPeriod,
+
+                budgets: draftBudgets ?? configuration
+
+            });
+
+            console.log(result);
+
+            setDraftBudgets(null);
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    };
     if (periodsLoading || isLoading) {
 
         return <AppSpinner />;
@@ -90,25 +168,24 @@ export default function BudgetPage() {
 
         <div className="container-fluid">
 
-            <DashboardHeader
-
+            <BudgetToolbar
                 period={selectedPeriod}
                 periods={periods}
                 onPeriodChange={setSelectedPeriod}
-
+                onSave={handleSave}
             />
 
             <AppCard>
 
                 {budgets.length === 0 ? (
 
-                    <BudgetEmptyState
+                <BudgetEmptyState
 
-                        onCopy={() => console.log("copy")}
+                    onCopy={handleCopy}
 
-                        onCreate={() => console.log("create")}
+                    onCreate={handleCreate}
 
-                    />
+                />
 
                 ) : (
 

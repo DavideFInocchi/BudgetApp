@@ -1,9 +1,10 @@
 import { supabase } from "./supabase";
-
+import { formatSqlDate } from "../utils/dateUtils";
 
 const MONTH_TABLE = "vw_budget_metrics";
 const YEAR_TABLE = "vw_budget_metrics_year";
 const CONFIGURATION_TABLE = "vw_budget_configuration";
+
 const budgetService = {
 
     async getAll() {
@@ -52,12 +53,12 @@ const budgetService = {
 
         .gte(
             "month",
-            period.from.toISOString().split("T")[0]
+            formatSqlDate(period.from)
         )
 
         .lte(
             "month",
-            period.to.toISOString().split("T")[0]
+            formatSqlDate(period.to)
         )
 
         .order("month", { ascending: true })
@@ -103,7 +104,7 @@ const budgetService = {
 
             .eq(
                 "month",
-                period.from.toISOString().split("T")[0]
+                formatSqlDate(period.from)
             )
 
             .order("category_name", {
@@ -115,7 +116,69 @@ const budgetService = {
 
         return data;
 
-    }
+    },
+    async createMonth(period, copy = true) {
+
+        const { data, error } = await supabase.rpc(
+
+            "budget_create_month",
+
+            {
+
+                p_month: formatSqlDate(period.from),
+
+                p_copy: copy
+
+            }
+
+        );
+
+        if (error)
+            throw error;
+
+        return data[0];
+
+    },
+    async getFirstMonth() {
+
+        const { data, error } = await supabase
+
+            .from("budgets")
+
+            .select("month")
+
+            .order("month", { ascending: true })
+
+            .limit(1);
+
+        if (error)
+            throw error;
+
+        return data[0]?.month ?? null;
+
+    },
+    async saveMonth(period, budgets) {
+
+        const { data, error } = await supabase.rpc(
+
+            "budget_save_month",
+
+            {
+                p_month: formatSqlDate(period.from),
+                p_budgets: budgets.map(budget => ({
+                    id: budget.id,
+                    amount: budget.budget
+                }))
+            }
+
+        );
+
+        if (error)
+            throw error;
+
+        return data[0];
+
+    },
 };
 
 

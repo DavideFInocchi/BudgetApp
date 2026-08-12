@@ -6,10 +6,13 @@ import { useActiveCategories } from "../../hooks/useActiveCategories";
 import AppButton from "../../components/ui/AppButton";
 import AppInput from "../../components/ui/AppInput";
 import AppSelect from "../../components/ui/AppSelect";
+import { formatSqlDate } from "../../utils/dateUtils";
+
+import { BALANCE_TYPES } from "../../constants/balanceTypes";
 
 const DEFAULT_VALUES = {
 
-    transaction_date: new Date().toISOString().split("T")[0],
+    transaction_date: formatSqlDate((new Date())),
     description: "",
     transaction_type: "Uscita",
     amount: "",
@@ -191,21 +194,12 @@ export default function TransactionForm({
                         control={control}
                         render={({ field }) => (
 
-                            <AppSelect
-                                label="Saldo"
-                                options={[
-                                    {
-                                        value: "Ordinario",
-                                        label: "Ordinario"
-                                    },
-                                    {
-                                        value: "Straordinario",
-                                        label: "Straordinario"
-                                    }
-                                ]}
-                                value={field.value}
-                                onChange={field.onChange}
-                            />
+                        <AppSelect
+                            label="Saldo"
+                            options={BALANCE_TYPES}
+                            value={field.value}
+                            onChange={field.onChange}
+                        />
 
                         )}
                     />

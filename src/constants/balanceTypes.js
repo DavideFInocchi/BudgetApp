@@ -1,4 +1,10 @@
-export const BALANCE_TYPES = {
-    ORDINARY: "ORDINARIO",
-    EXTRAORDINARY: "STRAORDINARIO",
-};
+export const BALANCE_TYPES = [
+    {
+        value: "Ordinario",
+        label: "Ordinario"
+    },
+    {
+        value: "Straordinario",
+        label: "Straordinario"
+    }
+];

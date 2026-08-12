@@ -29,7 +29,21 @@ export function useTransactions() {
         }
 
     });
+    const createMany = useMutation({
 
+        mutationFn: transactionService.createMany,
+
+        onSuccess: () => {
+
+            queryClient.invalidateQueries({
+
+                queryKey: ["transactions"]
+
+            });
+
+        }
+
+    });
     const update = useMutation({
 
         mutationFn: ({ id, data }) =>
@@ -68,6 +82,7 @@ export function useTransactions() {
         ...query,
 
         create,
+        createMany,
         update,
         remove
 

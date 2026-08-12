@@ -13,7 +13,15 @@ import toastService from "../../services/toastService";
 import TransactionToolbar from "./TransactionToolbar";
 import TransactionTable from "./TransactionTable";
 import TransactionModal from "./TransactionModal";
+import TransactionImport from "./TransactionImport";
+import TransactionImportModal from "./TransactionImportModal";
 
+import {
+    parseIntesaExcel,
+    toTransactionRecord
+} from "../../services/intesaImportService";
+import { useTransactionFilters } from "../../hooks/useTransactionFilters";
+import { filterTransactions, sortTransactions } from "../../utils/transactionUtils";
 
 export default function TransactionsPage() {
 
@@ -21,7 +29,8 @@ export default function TransactionsPage() {
         data: transactions = [],
         isLoading,
         error,
-        remove
+        remove,
+        createMany
     } = useTransactions();
 
     const {
@@ -31,15 +40,31 @@ export default function TransactionsPage() {
     const [showModal, setShowModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
-    const [search, setSearch] = useState("");
-    const [category, setCategory] = useState("");
-    const [type, setType] = useState("");
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
     const [sortField, setSortField] = useState("transaction_date");
     const [sortDirection, setSortDirection] = useState("desc");
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [importTransactions, setImportTransactions] = useState([]);
+
+    const {
+
+        search,
+        setSearch,
+
+        category,
+        setCategory,
+
+        type,
+        setType,
+
+        fromDate,
+        setFromDate,
+
+        toDate,
+        setToDate,
+
+    } = useTransactionFilters();
 
     const handleAdd = () => {
 
@@ -107,82 +132,43 @@ export default function TransactionsPage() {
         }
 
     };
-const filteredTransactions = useMemo(() => {
+    const filteredTransactions = useMemo(() => {
 
-    return transactions.filter(transaction => {
+        return filterTransactions(
 
-        const matchesSearch =
-            (transaction.description ?? "")
-                .toLowerCase()
-                .includes(search.toLowerCase());
+            transactions,
 
-        const matchesCategory =
-            !category ||
-            String(transaction.category_id) === String(category);
+            {
+                search,
+                category,
+                type,
+                fromDate,
+                toDate
+            }
 
-        const matchesType =
-            !type ||
-            transaction.transaction_type === type;
-
-        const transactionDate = transaction.transaction_date;
-
-        const matchesFrom =
-            !fromDate ||
-            transactionDate >= fromDate;
-
-        const matchesTo =
-            !toDate ||
-            transactionDate <= toDate;
-
-        return (
-            matchesSearch &&
-            matchesCategory &&
-            matchesType &&
-            matchesFrom &&
-            matchesTo
         );
 
-    });
+    }, [
+        transactions,
+        search,
+        category,
+        type,
+        fromDate,
+        toDate
+    ]);
+    const sortedTransactions = useMemo(() => {
 
-}, [
-    transactions,
-    search,
-    category,
-    type,
-    fromDate,
-    toDate
-]);
-const sortedTransactions = useMemo(() => {
+        return sortTransactions(
+            filteredTransactions,
+            sortField,
+            sortDirection
+        );
 
-    return [...filteredTransactions].sort((a, b) => {
-
-        let valueA = a[sortField];
-        let valueB = b[sortField];
-
-        if (sortField === "amount") {
-            valueA = Number(valueA);
-            valueB = Number(valueB);
-        }
-
-        if (sortField === "transaction_date") {
-            valueA = new Date(valueA);
-            valueB = new Date(valueB);
-        }
-
-        if (typeof valueA === "string") valueA = valueA.toLowerCase();
-        if (typeof valueB === "string") valueB = valueB.toLowerCase();
-
-        if (valueA < valueB)
-            return sortDirection === "asc" ? -1 : 1;
-
-        if (valueA > valueB)
-            return sortDirection === "asc" ? 1 : -1;
-
-        return 0;
-
-    });
-
-}, [filteredTransactions, sortField, sortDirection]);
+    }, [
+        filteredTransactions,
+        sortField,
+        sortDirection
+    ]);
 const pagedTransactions = useMemo(() => {
 
     const start = (page - 1) * pageSize;
@@ -223,7 +209,6 @@ const pagedTransactions = useMemo(() => {
                     setCategory(value);
                     setPage(1);
                 }}
-
                 type={type}
                 setType={(value) => {
                     setType(value);
@@ -245,9 +230,33 @@ const pagedTransactions = useMemo(() => {
                 categories={categories}
                 onAdd={handleAdd}
             />
+            <TransactionImport
+                onFileSelected={async (file) => {
+
+                    try {
+
+                        const data = await file.arrayBuffer();
+
+                        const parsed =
+                            parseIntesaExcel(data);
+
+                        const normalized =
+                            parsed.map(toTransactionRecord);
+
+                        setImportTransactions(normalized);
+                        setShowImportModal(true);
+
+                    } catch (error) {
+
+                        console.error("ERRORE IMPORT", error);
+
+                    }
+
+                }}
+            />
 
             <AppCard>
-     
+
                 <TransactionTable
                     transactions={pagedTransactions}
                     onEdit={handleEdit}
@@ -258,6 +267,7 @@ const pagedTransactions = useMemo(() => {
                 />
 
             </AppCard>
+
             <AppPagination
                 totalItems={sortedTransactions.length}
                 page={page}
@@ -265,6 +275,7 @@ const pagedTransactions = useMemo(() => {
                 onPageChange={setPage}
                 onPageSizeChange={setPageSize}
             />
+
             <TransactionModal
                 show={showModal}
                 transaction={selectedTransaction}
@@ -275,7 +286,34 @@ const pagedTransactions = useMemo(() => {
 
                 }}
             />
+            <TransactionImportModal
+                open={showImportModal}
+                transactions={importTransactions}
+                categories={categories}
+                onClose={() => {
+                    setShowImportModal(false);
+                    setImportTransactions([]);
+                }}
+                onImport={async (data) => {
 
+                    try {
+
+                        const transactions =
+                            data.map(toTransactionRecord);
+
+                        const result =
+                            await createMany.mutateAsync(transactions);
+
+                        console.log("IMPORT COMPLETATO", result);
+
+                    } catch (error) {
+
+                        console.error("ERRORE IMPORT", error);
+
+                    }
+
+                }}
+            />
             <ConfirmDialog
                 open={!!transactionToDelete}
                 title="Elimina movimento"

@@ -22,8 +22,6 @@ export default function BudgetConfigurationTable({
 
                     <th>Categoria</th>
 
-                    <th>Tipo saldo</th>
-
                     <th className="text-end">Budget</th>
 
                 </tr>
@@ -56,11 +54,6 @@ export default function BudgetConfigurationTable({
 
                         </td>
 
-                        <td>
-
-                            {budget.balance_type}
-
-                        </td>
 
                     <td style={{ width: 180 }}>
 

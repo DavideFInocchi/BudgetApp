@@ -1,10 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import {
+    useMutation,
+    useQuery,
+    useQueryClient
+} from "@tanstack/react-query";
 
 import budgetService from "../services/budgetService";
 
 export function useBudgetConfiguration(period) {
 
-    return useQuery({
+    const queryClient = useQueryClient();
+
+    const query = useQuery({
 
         queryKey: [
 
@@ -27,5 +33,49 @@ export function useBudgetConfiguration(period) {
         refetchOnWindowFocus: false,
 
     });
+
+    const createMonth = useMutation({
+
+        mutationFn: ({ period, copy }) =>
+
+            budgetService.createMonth(period, copy),
+
+        onSuccess: () => {
+
+            queryClient.invalidateQueries({
+
+                queryKey: ["budget-configuration"]
+
+            });
+
+        }
+
+    });
+    const saveMonth = useMutation({
+
+        mutationFn: ({ period, budgets }) =>
+
+            budgetService.saveMonth(period, budgets),
+
+        onSuccess: () => {
+
+            queryClient.invalidateQueries({
+
+                queryKey: ["budget-configuration"]
+
+            });
+
+        }
+
+    });
+
+    return {
+
+        ...query,
+
+        createMonth,
+        saveMonth
+
+    };
 
 }
