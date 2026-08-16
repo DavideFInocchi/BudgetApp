@@ -7,15 +7,15 @@ export default function DashboardHeader({
   period,
   periods,
   onPeriodChange,
+  onNewTransaction,
 }) {
 
   return (
-    <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+    <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-3">
 
       <div>
-
-        <h2 className="fw-bold mb-1">
-          Dashboard
+        <h2 className="fw-bold mb-0 fs-3">
+            Dashboard
         </h2>
 
         <p className="text-muted mb-0">
@@ -24,11 +24,11 @@ export default function DashboardHeader({
 
       </div>
 
-      <div className="d-flex gap-2 mt-3 mt-lg-0">
+      <div className="d-flex align-items-center gap-2 mt-2 mt-lg-0">
 
       <AppSelect
-
-          className="w-auto"
+          wrapperClassName="dashboard-period-select-wrapper"  
+          className="w-auto dashboard-period-select"
 
           value={period?.key ?? ""}
 
@@ -64,8 +64,10 @@ export default function DashboardHeader({
 
         <AppButton
           icon="plus-lg"
+          className="dashboard-new-transaction"
+          onClick={onNewTransaction}
         >
-          Nuova transazione
+            Nuova transazione
         </AppButton>
 
       </div>

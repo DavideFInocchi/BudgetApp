@@ -17,7 +17,6 @@ const DEFAULT_VALUES = {
     transaction_type: "Uscita",
     amount: "",
     balance_type: "Ordinario",
-    category_id: ""
 
 };
 
@@ -31,22 +30,20 @@ export default function TransactionForm({
 }) {
 
     const { data: categories = [] } = useActiveCategories();
-
+    const defaultCategoryId = categories[0]?.id ?? "";
     const {
-
         register,
         control,
         handleSubmit,
         reset,
         formState: { errors }
-
     } = useForm({
-
-        defaultValues: DEFAULT_VALUES
-
+        defaultValues: {
+            ...DEFAULT_VALUES,
+            category_id: defaultCategoryId
+        }
     });
-
-    useEffect(() => {
+        useEffect(() => {
 
         if (transaction) {
 
@@ -63,7 +60,10 @@ export default function TransactionForm({
 
         } else {
 
-            reset(DEFAULT_VALUES);
+            reset({
+                ...DEFAULT_VALUES,
+                category_id: defaultCategoryId
+            });
 
         }
 

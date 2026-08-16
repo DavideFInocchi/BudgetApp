@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { useBudgetPeriods } from "../../hooks/useBudgetPeriods";
 import { useBudgetConfiguration } from "../../hooks/useBudgetConfiguration";
+import { useAverageSalary } from "../../hooks/useAverageSalary";
 
 import AppCard from "../../components/ui/AppCard";
 import AppSpinner from "../../components/ui/AppSpinner";
@@ -37,7 +38,10 @@ export default function BudgetPage() {
         saveMonth
 
     } = useBudgetConfiguration(selectedPeriod);
-
+    const {
+        data: averageSalary = 0,
+        isLoading: salaryLoading
+    } = useAverageSalary();
     // Stato dell'editor
     const [draftBudgets, setDraftBudgets] = useState(null);
 
@@ -140,7 +144,7 @@ console.log(selectedPeriod.to);
         }
 
     };
-    if (periodsLoading || isLoading) {
+    if (periodsLoading || isLoading || salaryLoading)  {
 
         return <AppSpinner />;
 
@@ -192,10 +196,9 @@ console.log(selectedPeriod.to);
                     <BudgetConfigurationTable
 
                         budgets={budgets}
-
                         editable={true}
-
                         onBudgetChange={handleBudgetChange}
+                        averageSalary={averageSalary}
 
                     />
 

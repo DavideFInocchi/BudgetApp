@@ -1,109 +1,142 @@
 import AppInput from "../../components/ui/AppInput";
-
 import { formatCurrency } from "../../utils/currency";
 
 export default function BudgetConfigurationTable({
-
     budgets = [],
-
     editable = false,
-
-    onBudgetChange
-
+    onBudgetChange,
+    averageSalary = 0
 }) {
+
+    const totalBudget = budgets.reduce(
+        (total, budget) => total + Number(budget.budget || 0),
+        0
+    );
+    const budgetPercentage = 
+        averageSalary > 0 ? (totalBudget / averageSalary) * 100 : 0;
+
+    const renderBudget = (budget) => (
+
+        <div
+            className="budget-table__item"
+            key={budget.id}
+        >
+
+            <div className="budget-table__category">
+
+                <div
+                    className="budget-table__icon"
+                    style={{
+                        backgroundColor: budget.category_color
+                    }}
+                >
+                    <i className={`bi bi-${budget.category_icon}`} />
+                </div>
+
+                <span>
+                    {budget.category_name}
+                </span>
+
+            </div>
+
+            <div className="budget-table__value">
+
+                {editable ? (
+
+                    <AppInput
+                        type="number"
+                        className="text-end"
+                        value={budget.budget}
+                        onChange={(event) =>
+                            onBudgetChange(
+                                budget.id,
+                                {
+                                    budget: Number(event.target.value)
+                                }
+                            )
+                        }
+                    />
+
+                ) : (
+
+                    <span>
+                        {formatCurrency(budget.budget)}
+                    </span>
+
+                )}
+
+            </div>
+
+        </div>
+
+    );
 
     return (
 
-        <table className="table align-middle">
+        <div className="budget-configuration">
 
-            <thead>
+            <div className="budget-configuration__summary">
 
-                <tr>
+                <div className="budget-configuration__header">
 
-                    <th>Categoria</th>
+                    <span className="budget-configuration__summary-label">
+                        Budget mensile
+                    </span>
 
-                    <th className="text-end">Budget</th>
+                    <span className="budget-configuration__summary-value">
+                        {formatCurrency(totalBudget)}
+                    </span>
 
-                </tr>
+                </div>
 
-            </thead>
+                <div className="budget-configuration__income">
 
-            <tbody>
+                    <div className="budget-configuration__income-row">
 
-                {budgets.map(budget => (
+                        <span>
+                            Reddito previsto
+                        </span>
 
-                    <tr key={budget.id}>
+                        <strong>
+                            {formatCurrency(averageSalary)}
+                        </strong>
 
-                        <td>
+                    </div>
 
-                            <div className="d-flex align-items-center">
+                    <div className="budget-configuration__percentage">
 
-                                <span
-                                    className="rounded-circle me-2"
-                                    style={{
-                                        width: 10,
-                                        height: 10,
-                                        backgroundColor: budget.category_color,
-                                        display: "inline-block",
-                                    }}
-                                />
+                        <span>
+                            Utilizzo del reddito
+                        </span>
 
-                                {budget.category_name}
+                        <strong>
+                            {budgetPercentage.toFixed(1)}%
+                        </strong>
 
-                            </div>
+                    </div>
 
-                        </td>
+                    <div className="budget-configuration__progress">
 
+                        <div
+                            className="budget-configuration__progress-bar"
+                            style={{
+                                width: `${Math.min(budgetPercentage, 100)}%`
+                            }}
+                        />
 
-                    <td style={{ width: 180 }}>
+            </div>
 
-                        {editable ? (
+    </div>
 
-                            <AppInput
+            </div>
 
-                                type="number"
+            <div className="budget-table">
 
-                                className="text-end"
+                {budgets.map(renderBudget)}
 
-                                value={budget.budget}
+            </div>
 
-                                onChange={(event) =>
-
-                                    onBudgetChange(
-
-                                        budget.id,
-
-                                        {
-
-                                            budget: Number(event.target.value)
-
-                                        }
-
-                                    )
-
-                                }
-
-                            />
-
-                        ) : (
-
-                            <div className="text-end">
-
-                                {formatCurrency(budget.budget)}
-
-                            </div>
-
-                        )}
-
-                    </td>
-
-                    </tr>
-
-                ))}
-
-            </tbody>
-
-        </table>
+        </div>
 
     );
 

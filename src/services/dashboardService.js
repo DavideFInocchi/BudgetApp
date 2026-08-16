@@ -29,7 +29,7 @@ export async function getDashboard(period) {
 
         summary: buildSummary(transactions),
 
-        cashFlow: buildCashFlow(transactions),
+        cashFlow: buildCashFlow(transactions, period),
 
         categories: buildCategories(transactions),
 
@@ -100,25 +100,47 @@ function buildSummary(transactions) {
 // Cash Flow
 // ======================================================
 
-function buildCashFlow(transactions) {
+function buildCashFlow(transactions, period) {
 
-    const { income, expense } =
-        calculateTotals(transactions);
+    const daily = new Map();
 
-    return [
+    transactions.forEach(transaction => {
 
-        {
+        const date = transaction.transaction_date;
+        const amount = Number(transaction.amount);
 
-            label: "Totale",
+        daily.set(
+            date,
+            (daily.get(date) ?? 0) + amount
+        );
 
-            income,
+    });
 
-            expense,
+    const result = [];
 
-        },
+    let cumulative = 0;
 
-    ];
+    const start = new Date(period.from);
+    const end = new Date(period.to);
 
+    for (
+        let current = new Date(start);
+        current <= end;
+        current.setDate(current.getDate() + 1)
+    ) {
+
+        const date = current.toISOString().slice(0, 10);
+
+        cumulative += daily.get(date) ?? 0;
+
+        result.push({
+            date,
+            value: cumulative,
+        });
+
+    }
+
+    return result;
 }
 
 function buildCategories(transactions) {

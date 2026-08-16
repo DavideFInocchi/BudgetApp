@@ -18,48 +18,38 @@ export default function AppStatCard({
 
   return (
 
-    <AppCard
-      className={`app-stat-card border-start border-4 border-${variant}`}
-    >
+<AppCard
+    className={`app-stat-card border-start border-4 border-${variant}`}
+>
 
-      <div className="d-flex justify-content-between align-items-start">
+  <div className="app-stat-card__content">
 
-        <div>
+      {icon && (
+          <div
+              className="app-stat-card__icon"
+              style={{
+                  background: `var(--bs-${variant}-bg-subtle)`
+              }}
+          >
+              <i className={`bi bi-${icon} text-${variant}`} />
+          </div>
+      )}
+
+      <div className="app-stat-card__info">
 
           <div className="app-stat-card__title">
-
-            {title}
-
+              {title}
           </div>
 
           <div className="app-stat-card__value">
-
-            {formattedValue}
-
+              {formattedValue}
           </div>
-
-        </div>
-
-        {icon && (
-
-          <div
-            className="app-stat-card__icon"
-            style={{
-              background: `var(--bs-${variant}-bg-subtle)`
-            }}
-          >
-
-            <i
-              className={`bi bi-${icon} text-${variant}`}
-            />
-
-          </div>
-
-        )}
 
       </div>
 
-    </AppCard>
+  </div>
+
+</AppCard>
 
   );
 

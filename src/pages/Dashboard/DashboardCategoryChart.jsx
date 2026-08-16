@@ -58,7 +58,7 @@ export default function DashboardCategoryChart({
 
         <AppCard title="Spese per categoria">
 
-            <div className="p-2" style={{ height: 300 }}>
+            <div className="p-2" style={{ height: 230 }}>
 
                 <Doughnut
                     data={data}
@@ -66,13 +66,14 @@ export default function DashboardCategoryChart({
                 />
 
             </div>
-            <div className="mt-4">
+            <div className="mt-1">
 
             {categoryExpenses.map((category) => (
 
                 <div
                     key={category.id}
-                    className="d-flex justify-content-between align-items-center py-2"
+                    className="d-flex justify-content-between align-items-center py-1"
+                    style={{ fontSize: "0.9rem" }}
                 >
 
                     <div className="d-flex align-items-center">
@@ -80,8 +81,8 @@ export default function DashboardCategoryChart({
                         <span
                             className="rounded-circle me-2"
                             style={{
-                                width: 10,
-                                height: 10,
+                                width: 8,
+                                height: 8,
                                 backgroundColor: category.color,
                             }}
                         />

@@ -209,6 +209,7 @@ const pagedTransactions = useMemo(() => {
                     setCategory(value);
                     setPage(1);
                 }}
+
                 type={type}
                 setType={(value) => {
                     setType(value);
@@ -229,9 +230,8 @@ const pagedTransactions = useMemo(() => {
 
                 categories={categories}
                 onAdd={handleAdd}
-            />
-            <TransactionImport
-                onFileSelected={async (file) => {
+
+                onImport={async (file) => {
 
                     try {
 
@@ -300,10 +300,17 @@ const pagedTransactions = useMemo(() => {
 
                         const transactions =
                             data.map(toTransactionRecord);
+                            const transactionsToInsert = transactions.map(
+                                ({
+                                    accounting_status,
+                                    bank_category,
+                                    included,
+                                    ...transaction
+                                }) => transaction
+                            );
 
-                        const result =
-                            await createMany.mutateAsync(transactions);
-
+                            const result =
+                                await createMany.mutateAsync(transactionsToInsert);
                         console.log("IMPORT COMPLETATO", result);
 
                     } catch (error) {

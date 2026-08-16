@@ -6,20 +6,19 @@ const AppSelect = forwardRef(function AppSelect({
     error,
     options = [],
     className = "",
+    wrapperClassName = "",
     ...props
 
 }, ref) {
 
     return (
 
-        <div className="mb-3">
+        <div className={`mb-3 ${wrapperClassName}`}>
 
             {label && (
 
                 <label className="form-label">
-
                     {label}
-
                 </label>
 
             )}
@@ -46,9 +45,7 @@ const AppSelect = forwardRef(function AppSelect({
             {error && (
 
                 <div className="invalid-feedback">
-
                     {error}
-
                 </div>
 
             )}

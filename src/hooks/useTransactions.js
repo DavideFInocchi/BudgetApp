@@ -25,6 +25,11 @@ export function useTransactions() {
                 queryKey: ["transactions"]
 
             });
+            queryClient.invalidateQueries({
+
+                queryKey: ["dashboard"]
+
+            });
 
         }
 
@@ -39,7 +44,8 @@ export function useTransactions() {
 
                 queryKey: ["transactions"]
 
-            });
+                });
+
 
         }
 

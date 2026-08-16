@@ -4,7 +4,7 @@ import AppStatCard from "../../components/ui/AppStatCard";
 
 export default function DashboardSummary({ summary = {} }) {
   return (
-    <div className="row g-3 mb-4">
+    <div className="row g-3 mb-4 dashboard-summary">
       <div className="col-12 col-md-6 col-xl-3">
         <AppStatCard
           title="Saldo"

@@ -162,9 +162,55 @@ const transactionService = {
 
         return data;
 
+    },
+
+    async getAverageSalary(months = 6) {
+
+        const { data, error } = await supabase
+            .from("vw_transactions")
+            .select(
+                "amount, transaction_date, category_name"
+            )
+            .eq("category_name", "Stipendio")
+            .order("transaction_date", { ascending: false });
+
+        if (error)
+            throw error;
+
+        const monthlySalaries = new Map();
+
+        data.forEach(transaction => {
+
+            const date = new Date(transaction.transaction_date);
+
+            const key =
+                `${date.getFullYear()}-${String(
+                    date.getMonth() + 1
+                ).padStart(2, "0")}`;
+
+            const amount = Number(transaction.amount) || 0;
+
+            monthlySalaries.set(
+                key,
+                (monthlySalaries.get(key) || 0) + amount
+            );
+
+        });
+
+        const salaries = [...monthlySalaries.values()]
+            .slice(0, months);
+
+        if (salaries.length === 0)
+            return 0;
+
+        const totalSalary = salaries.reduce(
+            (total, salary) => total + salary,
+            0
+        );
+
+        return totalSalary / salaries.length;
+
     }
-
-
 };
 
 export default transactionService;

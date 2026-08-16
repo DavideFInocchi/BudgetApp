@@ -32,29 +32,26 @@ export default function BudgetToolbar({
 
     return (
 
-        <div className="d-flex align-items-center gap-2">
+        <div className="budget-toolbar">
 
-            <AppButton
-
-                variant="primary"
-
-                onClick={onSave}
-
-            >
-                Salva
-            </AppButton>
-
-            <div style={{ width: 240 }}>
+            <div className="budget-toolbar__period">
 
                 <AppSelect
-
                     value={period?.from?.toISOString() ?? ""}
-
                     options={options}
-
                     onChange={handleChange}
-
                 />
+
+            </div>
+
+            <div className="budget-toolbar__actions">
+
+                <AppButton
+                    variant="primary"
+                    onClick={onSave}
+                >
+                    Salva
+                </AppButton>
 
             </div>
 

@@ -2,6 +2,7 @@ import AppButton from "../../components/ui/AppButton";
 import AppSearch from "../../components/ui/AppSearch";
 import AppSelect from "../../components/ui/AppSelect";
 import AppInput from "../../components/ui/AppInput";
+import TransactionImport from "./TransactionImport";
 
 export default function TransactionToolbar({
 
@@ -21,7 +22,8 @@ export default function TransactionToolbar({
     toDate,
     setToDate,
 
-    onAdd
+    onAdd,
+    onImport
 
 }) {
 
@@ -41,71 +43,65 @@ export default function TransactionToolbar({
 
     return (
 
-        <div className="row g-3 align-items-end mb-4">
+    <div className="transaction-toolbar mb-4">
 
-            <div className="col-lg-3">
+        <div className="transaction-toolbar__search">
+            <AppSearch
+                value={search}
+                onChange={setSearch}
+                placeholder="Cerca movimento..."
+            />
+        </div>
 
-                <AppSearch
-                    value={search}
-                    onChange={setSearch}
-                    placeholder="Cerca movimento..."
-                />
+        <div className="transaction-toolbar__category">
+            <AppSelect
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                options={categoryOptions}
+            />
+        </div>
 
-            </div>
+        <div className="transaction-toolbar__type">
+            <AppSelect
+                value={type}
+                onChange={e => setType(e.target.value)}
+                options={typeOptions}
+            />
+        </div>
 
-            <div className="col-lg-2">
+        <div className="transaction-toolbar__date transaction-toolbar__from">
+            <AppInput
+                type="date"
+                value={fromDate}
+                onChange={e => setFromDate(e.target.value)}
+            />
+        </div>
 
-                <AppSelect
-                    value={category}
-                    onChange={e => setCategory(e.target.value)}
-                    options={categoryOptions}
-                />
+        <div className="transaction-toolbar__date transaction-toolbar__to">
+            <AppInput
+                type="date"
+                value={toDate}
+                onChange={e => setToDate(e.target.value)}
+            />
+        </div>
 
-            </div>
+        <div className="transaction-toolbar__actions">
 
-            <div className="col-lg-2">
+            <TransactionImport
+                onFileSelected={onImport}
+            />
 
-                <AppSelect
-                    value={type}
-                    onChange={e => setType(e.target.value)}
-                    options={typeOptions}
-                />
-
-            </div>
-
-            <div className="col-lg-2">
-
-                <AppInput
-                    type="date"
-                    value={fromDate}
-                    onChange={e => setFromDate(e.target.value)}
-                />
-
-            </div>
-
-            <div className="col-lg-2">
-
-                <AppInput
-                    type="date"
-                    value={toDate}
-                    onChange={e => setToDate(e.target.value)}
-                />
-
-            </div>
-
-            <div className="col-lg-1 d-grid">
-
-                <AppButton
-                    icon="bi-plus-lg"
-                    onClick={onAdd}
-                >
-                    Nuovo
-                </AppButton>
-
-            </div>
+            <AppButton
+                icon="plus-lg"
+                onClick={onAdd}
+            >
+                Nuovo
+            </AppButton>
 
         </div>
 
-    );
+    </div>
+
+);
 
 }

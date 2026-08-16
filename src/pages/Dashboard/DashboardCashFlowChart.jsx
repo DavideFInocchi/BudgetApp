@@ -1,131 +1,191 @@
 import AppCard from "../../components/ui/AppCard";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { COLORS } from "../../constants/colors";
 
 export default function DashboardCashFlowChart({
     cashFlow = [],
 }) {
 
-    const first = cashFlow[0];
-
     const data = {
-        labels: ["Entrate", "Uscite"],
+
+        labels: cashFlow.map(point => {
+            const date = new Date(`${point.date}T00:00:00`);
+
+            return date.toLocaleDateString("it-IT", {
+                day: "numeric",
+                month: "short",
+            });
+        }),
+
         datasets: [
             {
-                data: [
-                first?.income ?? 0,
-                first?.expense ?? 0,
-                ],
-                backgroundColor: [
-                COLORS.success,
-                COLORS.danger,
-                ],
-                borderRadius: 8,
-                borderSkipped: false,
-                maxBarThickness: 70,
-                categoryPercentage: 0.5,
-                barPercentage: 0.7,
+                data: cashFlow.map(point => point.value),
+
+                borderColor: COLORS.primary,
+
+                backgroundColor: "transparent",
+
+                borderWidth: 2,
+
+                tension: 0.35,
+
+                pointRadius: 3,
+
+                pointHoverRadius: 5,
+
+                pointBorderWidth: 0,
+
             },
         ],
+
     };
 
     const options = {
-    layout: {
-        padding: {
-            left: 10,
-            right: 10,
-            top: 5,
-            bottom: 0,
-        },
-    },
-    responsive: true,
 
-    maintainAspectRatio: false,
+        responsive: true,
 
-    plugins: {
+        maintainAspectRatio: false,
 
-        legend: {
-        display: false,
+        layout: {
+            padding: {
+                left: 5,
+                right: 10,
+                top: 5,
+                bottom: 0,
+            },
         },
 
-        tooltip: {
+        plugins: {
 
-        backgroundColor: COLORS.text,
+            legend: {
+                display: false,
+            },
 
-        titleFont: {
-            weight: "600",
-        },
+            tooltip: {
 
-        bodyFont: {
-            size: 13,
-        },
+                backgroundColor: COLORS.text,
 
-        padding: 12,
+                titleFont: {
+                    weight: "600",
+                },
 
-        cornerRadius: 10,
+                bodyFont: {
+                    size: 13,
+                },
 
-        displayColors: false,
+                padding: 10,
 
-        },
+                cornerRadius: 8,
 
-    },
+                displayColors: false,
 
-    scales: {
+                callbacks: {
 
-        x: {
+                    title(context) {
 
-        grid: {
-            display: false,
-        },
+                        return context[0].label;
 
-        border: {
-            display: false,
-        },
+                    },
 
-        ticks: {
-            color: COLORS.textMuted,
-        },
+                    label(context) {
 
-        },
+                        return `Saldo: € ${Number(
+                            context.raw
+                        ).toLocaleString("it-IT", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                        })}`;
 
-        y: {
+                    },
 
-        beginAtZero: true,
+                },
 
-        border: {
-            display: false,
-        },
-
-        grid: {
-            color: COLORS.border,
-        },
-
-        ticks: {
-            color: COLORS.textMuted,
-        },
+            },
 
         },
 
-    },
+        scales: {
+
+            x: {
+
+                grid: {
+                    display: false,
+                },
+
+                border: {
+                    display: false,
+                },
+
+                ticks: {
+                    color: COLORS.textMuted,
+                    maxTicksLimit: 8,
+                },
+
+            },
+            y: {
+
+                border: {
+                    display: false,
+                },
+
+                grid: {
+
+                    color: (context) => {
+
+                        if (context.tick.value === 0) {
+                            return COLORS.textMuted;
+                        }
+
+                        return COLORS.border;
+                    },
+
+                    lineWidth: (context) => {
+
+                        if (context.tick.value === 0) {
+                            return 1.2;
+                        }
+
+                        return 1;
+                    },
+
+                },
+
+                ticks: {
+
+                    color: COLORS.textMuted,
+
+                    callback(value) {
+
+                        return `€ ${Number(value).toLocaleString("it-IT")}`;
+
+                    },
+
+                },
+
+            },
+
+        },
 
     };
 
     return (
 
-        <AppCard title="Entrate vs Uscite">
+        <AppCard title="Andamento saldo">
 
             <div
-                className="mx-auto"
+                className="mx-auto mt-4"
                 style={{
-                    width: 420,
-                    maxWidth: "100%",
-                    height: 320,
+                    width: "100%",
+                    maxWidth: 600,
+                    height: 190,
                 }}
             >
-                <Bar
+
+                <Line
                     data={data}
                     options={options}
                 />
+
             </div>
 
         </AppCard>

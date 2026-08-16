@@ -8,10 +8,6 @@ export default function Header() {
 
                 <h2>Budget App</h2>
 
-                <small>
-                    Gestione delle finanze personali
-                </small>
-
             </div>
 
             <div className="header-user">

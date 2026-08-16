@@ -43,8 +43,6 @@ export default function TransactionImportModal({
         const selected = current.filter(
             transaction => transaction.included
         );
-        console.log("Totali:", current.length);
-        console.log("Selezionate:", selected.length);
         onImport?.(selected);
 
     };
