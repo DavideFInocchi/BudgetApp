@@ -13,8 +13,8 @@ import toastService from "../../services/toastService";
 import TransactionToolbar from "./TransactionToolbar";
 import TransactionTable from "./TransactionTable";
 import TransactionModal from "./TransactionModal";
-import TransactionImport from "./TransactionImport";
 import TransactionImportModal from "./TransactionImportModal";
+import transactionService from "../../services/transactionService";
 
 import {
     parseIntesaExcel,
@@ -46,7 +46,10 @@ export default function TransactionsPage() {
     const [pageSize, setPageSize] = useState(25);
     const [showImportModal, setShowImportModal] = useState(false);
     const [importTransactions, setImportTransactions] = useState([]);
-
+    const [importResult, setImportResult] = useState({
+        duplicates: [],
+        newTransactions: []
+    });
     const {
 
         search,
@@ -169,7 +172,7 @@ export default function TransactionsPage() {
         sortField,
         sortDirection
     ]);
-const pagedTransactions = useMemo(() => {
+    const pagedTransactions = useMemo(() => {
 
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
@@ -241,7 +244,17 @@ const pagedTransactions = useMemo(() => {
                             parseIntesaExcel(data);
 
                         const normalized =
-                            parsed.map(toTransactionRecord);
+                            await Promise.all(
+                                parsed.map(toTransactionRecord)
+                            );
+                        const result =
+                            await transactionService.checkImportDuplicates(
+                                normalized
+                            );
+
+                    console.log("DUPLICATI:", result.duplicates);
+                    console.log("NUOVI:", result.newTransactions);
+                        setImportResult(result);
 
                         setImportTransactions(normalized);
                         setShowImportModal(true);
@@ -289,29 +302,57 @@ const pagedTransactions = useMemo(() => {
             <TransactionImportModal
                 open={showImportModal}
                 transactions={importTransactions}
+                importResult={importResult}
                 categories={categories}
+
                 onClose={() => {
                     setShowImportModal(false);
                     setImportTransactions([]);
+                    setImportResult({
+                        duplicates: [],
+                        newTransactions: []
+                    });
                 }}
                 onImport={async (data) => {
 
-                    try {
+    console.log(
+        "TOTALE TRANSAZIONI:",
+        data.length
+    );
 
-                        const transactions =
-                            data.map(toTransactionRecord);
-                            const transactionsToInsert = transactions.map(
-                                ({
-                                    accounting_status,
-                                    bank_category,
-                                    included,
-                                    ...transaction
-                                }) => transaction
-                            );
+    console.log(
+        "TUTTE HANNO FINGERPRINT:",
+        data.every(
+            transaction =>
+                Boolean(transaction.source_fingerprint)
+        )
+    );
 
-                            const result =
-                                await createMany.mutateAsync(transactionsToInsert);
-                        console.log("IMPORT COMPLETATO", result);
+    try {
+
+        const transactionsToInsert = data.map(
+            ({
+                accounting_status,
+                bank_category,
+                included,
+                source_operation,
+                source_details,
+                ...transaction
+            }) => transaction
+        );
+
+console.log("PAYLOAD DB:", transactionsToInsert);
+
+
+                        const result = await createMany.mutateAsync(
+                            transactionsToInsert
+                        );
+console.log(
+    "IMPORT COMPLETATO:",
+    result
+);
+                        setShowImportModal(false);
+                        setImportTransactions([]);
 
                     } catch (error) {
 

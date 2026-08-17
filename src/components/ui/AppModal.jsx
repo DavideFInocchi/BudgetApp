@@ -8,7 +8,8 @@ export default function AppModal({
     onClose,
     footer,
     size = "",
-    bodyClassName = ""
+    bodyClassName = "",
+    className = ""
 
 }) {
 
@@ -24,7 +25,7 @@ export default function AppModal({
             style={{ backgroundColor: "rgba(0,0,0,.5)" }}
         >
 
-            <div className={`modal-dialog ${size}`}>
+            <div className={`modal-dialog ${size} ${className}`}>
 
                 <div className="modal-content">
 

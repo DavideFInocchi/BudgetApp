@@ -210,6 +210,60 @@ const transactionService = {
 
         return totalSalary / salaries.length;
 
+    },
+    
+    async checkImportDuplicates(transactions) {
+
+        const fingerprints = [
+            ...new Set(
+                transactions
+                    .map(transaction => transaction.source_fingerprint)
+                    .filter(Boolean)
+            )
+        ];
+
+        if (fingerprints.length === 0) {
+
+            return {
+                duplicates: [],
+                newTransactions: transactions
+            };
+
+        }
+
+        const { data, error } = await supabase
+            .from(TABLE)
+            .select("id, source_fingerprint")
+            .in("source_fingerprint", fingerprints);
+
+        if (error)
+            throw error;
+
+        const existingFingerprints = new Set(
+            data.map(transaction =>
+                transaction.source_fingerprint
+            )
+        );
+
+        const duplicates = transactions.filter(
+            transaction =>
+                existingFingerprints.has(
+                    transaction.source_fingerprint
+                )
+        );
+
+        const newTransactions = transactions.filter(
+            transaction =>
+                !existingFingerprints.has(
+                    transaction.source_fingerprint
+                )
+        );
+
+        return {
+            duplicates,
+            newTransactions
+        };
+
     }
 };
 

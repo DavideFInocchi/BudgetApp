@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import { formatSqlDate } from "../utils/dateUtils.js";
-
+import { createTransactionFingerprint } from "../utils/transactionFingerprint.js";
 
 export function parseIntesaExcel(file) {
 
@@ -93,7 +93,7 @@ export function parseIntesaExcel(file) {
 
 }
 
-export function toTransactionRecord(transaction) {
+export async function toTransactionRecord(transaction) {
 
     const amount = Number(transaction.amount);
 
@@ -104,7 +104,7 @@ export function toTransactionRecord(transaction) {
         .filter(Boolean)
         .join(" - ");
 
-    return {
+    const record = {
 
         transaction_date: transaction.transaction_date,
 
@@ -129,7 +129,22 @@ export function toTransactionRecord(transaction) {
             transaction.bank_category,
 
         included:
-            transaction.accounting_status === "CONTABILIZZATO"
+            transaction.accounting_status === "CONTABILIZZATO",
+
+        source_operation:
+            transaction.description ?? "",
+
+        source_details:
+            transaction.details ?? ""
+
+    };
+
+    return {
+
+        ...record,
+
+        source_fingerprint:
+            await createTransactionFingerprint(record)
 
     };
 

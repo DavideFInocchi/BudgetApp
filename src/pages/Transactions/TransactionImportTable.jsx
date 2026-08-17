@@ -7,6 +7,7 @@ export default function TransactionImportTable({
 
     transactions = [],
     categories = [],
+    duplicateFingerprints = [],
     onCategoryChange,
     onDescriptionChange,
     onBalanceTypeChange,
@@ -18,7 +19,7 @@ console.log("IMPORT TABLE", transactions);
 
         <div className="table-responsive">
 
-            <table className="table table-sm align-middle">
+            <table className="table table-sm align-middle transaction-import-table">
 
                 <thead>
 
@@ -36,115 +37,127 @@ console.log("IMPORT TABLE", transactions);
                 </thead>
 
                 <tbody>
+                        {transactions.map((transaction, index) => {
 
-                    {transactions.map((transaction, index) => (
+                            const isDuplicate =
+                                duplicateFingerprints.has(
+                                    transaction.source_fingerprint
+                                );
 
-                        <tr
-                            key={`${transaction.transaction_date}-${index}`}
-                        >
+                            return (
+                                <tr
+                                    key={`${transaction.transaction_date}-${index}`}
+                                    className={
+                                        isDuplicate
+                                            ? "transaction-import-row transaction-import-row--duplicate"
+                                            : "transaction-import-row"
+                                    }
+                                >
 
-                            <td>
-                                {transaction.transaction_date}
-                            </td>
-                            <td style={{ minWidth: 350 }}>
+                                    <td>
+                                        {transaction.transaction_date}
+                                    </td>
+                                    <td style={{ minWidth: 350 }}>
 
-                                <AppTextarea
+                                        <AppTextarea
 
-                                    rows={4}
+                                            rows={2}
 
-                                    value={transaction.description ?? ""}
+                                            value={transaction.description ?? ""}
 
-                                    className="mb-0"
+                                            className="mb-0"
 
-                                    onChange={(event) => {
+                                            onChange={(event) => {
 
-                                        onDescriptionChange?.(
-                                            index,
-                                            event.target.value
-                                        );
+                                                onDescriptionChange?.(
+                                                    index,
+                                                    event.target.value
+                                                );
 
-                                    }}
+                                            }}
 
-                                />
+                                        />
 
-                            </td>
+                                    </td>
 
-                            <td className="text-end">
-                                {transaction.amount}
-                            </td>
+                                    <td className="text-end">
+                                        {transaction.amount}
+                                    </td>
 
-                            <td>
-                                {transaction.accounting_status}
-                            </td>
-                            <td>
+                                    <td>
+                                        {transaction.accounting_status}
+                                    </td>
+                                    <td>
+                                        {transaction.bank_category || "-"}
+                                    </td>
 
-                                <AppCheckbox
+                                    <td>
+                                        <AppSelect
+                                            value={transaction.category_id ?? ""}
+                                            options={[
+                                                {
+                                                    value: "",
+                                                    label: "Seleziona categoria"
+                                                },
+                                                ...categories.map(category => ({
+                                                    value: category.id,
+                                                    label: category.name
+                                                }))
+                                            ]}
+                                            onChange={(event) => {
+                                                onCategoryChange(
+                                                    index,
+                                                    event.target.value
+                                                );
+                                            }}
+                                        />
+                                    </td>
 
-                                    checked={transaction.included ?? false}
+                                    <td>
+                                        <AppSelect
+                                            value={transaction.balance_type ?? "Ordinario"}
+                                            options={BALANCE_TYPES}
+                                            onChange={(event) => {
+                                                onBalanceTypeChange?.(
+                                                    index,
+                                                    event.target.value
+                                                );
+                                            }}
+                                        />
+                                    </td>
 
-                                    onChange={(event) => {
+                                    <td>
+                                        <div className="d-flex align-items-center gap-2">
 
-                                        onIncludedChange?.(
-                                            index,
-                                            event.target.checked
-                                        );
+                                            <AppCheckbox
+                                                checked={
+                                                    isDuplicate
+                                                        ? false
+                                                        : transaction.included ?? false
+                                                }
+                                                disabled={isDuplicate}
+                                                onChange={(event) => {
+                                                    if (!isDuplicate) {
+                                                        onIncludedChange?.(
+                                                            index,
+                                                            event.target.checked
+                                                        );
+                                                    }
+                                                }}
+                                            />
 
-                                    }}
+                                            {isDuplicate && (
+                                                <span className="transaction-import__duplicate-badge">
+                                                    Importata
+                                                </span>
+                                            )}
 
-                                />
+                                        </div>
+                                    </td>        
+                                </tr>
+                            );
 
-                            </td>        
-                            <td>
-                                {transaction.bank_category || "-"}
-                            </td>
-
-                            <td>
-
-                                <AppSelect
-                                    value={transaction.category_id ?? ""}
-
-                                    options={[
-                                        {
-                                            value: "",
-                                            label: "Seleziona categoria"
-                                        },
-
-                                        ...categories.map(category => ({
-                                            value: category.id,
-                                            label: category.name
-                                        }))
-
-                                    ]}
-
-                                    onChange={(event) => {
-
-                                        onCategoryChange(index, event.target.value);
-
-                                    }}
-
-                                />
-
-                            </td>
-                            <td>
-
-                            <AppSelect
-                                value={transaction.balance_type ?? "Ordinario"}
-                                options={BALANCE_TYPES}
-                                onChange={(event) => {
-
-                                    onBalanceTypeChange?.(
-                                        index,
-                                        event.target.value
-                                    );
-
-                                }}
-                            />
-
-                            </td>             
-                        </tr>
-
-                    ))}
-
+                        })}
                 </tbody>
 
             </table>

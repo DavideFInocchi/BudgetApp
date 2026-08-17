@@ -5,99 +5,82 @@ import AppButton from "../../components/ui/AppButton";
 import { useState } from "react";
 
 export default function TransactionImportModal({
-
     open,
     transactions = [],
+    importResult,
     onClose,
     categories = [],
     onImport
 
 }) {
-    const [draftTransactions, setDraftTransactions] = useState(null);
+    const [changes, setChanges] = useState({});
 
-    const displayedTransactions =
-        draftTransactions ?? transactions ?? [];
-        
+    const duplicateFingerprints = new Set(
+        (importResult?.duplicates ?? [])
+            .map(transaction => transaction.source_fingerprint)
+    );
+
+    const displayedTransactions = transactions.map(
+        (transaction, index) => ({
+            ...transaction,
+            ...(changes[index] ?? {})
+        })
+    );
+
     const handleCategoryChange = (index, categoryId) => {
-
-        setDraftTransactions(previous => {
-
-            const current = previous ?? transactions ?? [];
-
-            return current.map((transaction, currentIndex) =>
-                currentIndex === index
-                    ? {
-                        ...transaction,
-                        category_id: categoryId
-                    }
-                    : transaction
-            );
-
-        });
+        setChanges(previous => ({
+            ...previous,
+            [index]: {
+                ...previous[index],
+                category_id: categoryId
+            }
+        }));
 
     };
     const handleImport = () => {
 
-        const current = draftTransactions ?? transactions ?? [];
-
-        const selected = current.filter(
-            transaction => transaction.included
+        const selected = displayedTransactions.filter(
+            transaction =>
+                transaction.included &&
+                !duplicateFingerprints.has(
+                    transaction.source_fingerprint
+                )
         );
+
         onImport?.(selected);
 
     };
     const handleDescriptionChange = (index, description) => {
 
-        setDraftTransactions(previous => {
-
-            const current = previous ?? transactions ?? [];
-
-            return current.map((transaction, currentIndex) =>
-                currentIndex === index
-                    ? {
-                        ...transaction,
-                        description
-                    }
-                    : transaction
-            );
-
-        });
+        setChanges(previous => ({
+            ...previous,
+            [index]: {
+                ...previous[index],
+                description
+            }
+        }));
 
     };
     const handleBalanceTypeChange = (index, balanceType) => {
 
-        setDraftTransactions(previous => {
-
-            const current = previous ?? transactions ?? [];
-
-            return current.map((transaction, currentIndex) =>
-                currentIndex === index
-                    ? {
-                        ...transaction,
-                        balance_type: balanceType
-                    }
-                    : transaction
-            );
-
-        });
+        setChanges(previous => ({
+            ...previous,
+            [index]: {
+                ...previous[index],
+                balance_type: balanceType
+            }
+        }));
 
     };
     const handleIncludedChange = (index, included) => {
 
-        setDraftTransactions(previous => {
-
-            const current = previous ?? transactions ?? [];
-
-            return current.map((transaction, currentIndex) =>
-                currentIndex === index
-                    ? {
-                        ...transaction,
-                        included
-                    }
-                    : transaction
-            );
-
-        });
+        setChanges(previous => ({
+            ...previous,
+            [index]: {
+                ...previous[index],
+                included
+            }
+        }));
 
     };
 
@@ -115,6 +98,8 @@ export default function TransactionImportModal({
 
             size="modal-xl"
 
+            className="transaction-import-modal"
+            
             footer={
                 <AppButton
                     variant="primary"
@@ -126,15 +111,40 @@ export default function TransactionImportModal({
 
         >
         <div>
+            <div className="import-summary">
 
-            <p className="text-muted mb-3">
+                <div className="import-summary__item">
+                    <span className="import-summary__value">
+                        {transactions.length}
+                    </span>
+                    <span className="import-summary__label">
+                        Transazioni
+                    </span>
+                </div>
 
-                {transactions.length} transazioni trovate.
+                <div className="import-summary__item">
+                    <span className="import-summary__value import-summary__value--new">
+                        {importResult?.newTransactions?.length ?? 0}
+                    </span>
+                    <span className="import-summary__label">
+                        Nuove
+                    </span>
+                </div>
 
-            </p>
+                <div className="import-summary__item">
+                    <span className="import-summary__value import-summary__value--duplicate">
+                        {importResult?.duplicates?.length ?? 0}
+                    </span>
+                    <span className="import-summary__label">
+                        Già importate
+                    </span>
+                </div>
+
+            </div>
             <TransactionImportTable
                 transactions={displayedTransactions}
                 categories={categories}
+                duplicateFingerprints={duplicateFingerprints}
                 onCategoryChange={handleCategoryChange}
                 onDescriptionChange={handleDescriptionChange}
                 onBalanceTypeChange={handleBalanceTypeChange}

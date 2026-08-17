@@ -678,3 +678,189 @@
     }
 
 }
+
+/* ==========================
+   IMPORT EXCEL
+   ========================== */
+
+.transaction-import-row--duplicate td {
+    background-color: #f6f7f8 !important;
+    color: var(--color-text-muted);
+}
+
+
+/* Badge duplicato */
+.transaction-import__duplicate-badge {
+    display: inline-flex;
+    align-items: center;
+
+    margin-left: .25rem;
+    padding: .18rem .4rem;
+
+    border-radius: 999px;
+
+    background: #e9ecef;
+    color: var(--color-text-muted);
+
+    font-size: .62rem;
+    font-weight: 600;
+
+    line-height: 1;
+    white-space: nowrap;
+}
+/* Header */
+
+.transaction-import-table thead th {
+    padding: .65rem .5rem;
+
+    color: var(--color-text-muted);
+
+    font-size: .72rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: .04em;
+
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Celle */
+
+.transaction-import-table tbody td {
+    padding: .4rem .4rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+/* Elimina il margine Bootstrap dei componenti dentro la tabella */
+
+.transaction-import-table td .mb-3 {
+    margin-bottom: 0 !important;
+}
+
+/* Descrizione */
+
+.transaction-import-table textarea {
+    min-height: 48px;
+    height: 48px;
+
+    resize: vertical;
+
+    padding: .4rem .55rem;
+
+    font-size: .82rem;
+    line-height: 1.3;
+}
+
+
+/* ==========================
+   SUMMARY
+   ========================== */
+
+.import-summary {
+    display: flex;
+    align-items: center;
+
+    gap: 2rem;
+
+    padding: .75rem 0 1rem;
+}
+
+.import-summary__item {
+    display: flex;
+    align-items: baseline;
+
+    gap: .4rem;
+}
+
+.import-summary__value {
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.import-summary__label {
+    color: var(--color-text-muted);
+    font-size: .85rem;
+}
+
+.import-summary__value--new {
+    color: #198754;
+}
+
+.import-summary__value--duplicate {
+    color: var(--color-text-muted);
+}
+
+
+/* ==========================
+   IMPORT TABLE - LAYOUT
+   ========================== */
+
+.transaction-import-table {
+    width:100%;
+    table-layout: fixed;
+}
+
+.transaction-import-table th:nth-child(1),
+.transaction-import-table td:nth-child(1) {
+    width: 8%;
+}
+
+.transaction-import-table th:nth-child(2),
+.transaction-import-table td:nth-child(2) {
+    width: 25%;
+}
+
+.transaction-import-table th:nth-child(3),
+.transaction-import-table td:nth-child(3) {
+    width: 7%;
+}
+
+.transaction-import-table th:nth-child(4),
+.transaction-import-table td:nth-child(4) {
+    width: 13%;
+    line-height: 1.25;
+    font-size: .75rem;
+}
+
+.transaction-import-table th:nth-child(5),
+.transaction-import-table td:nth-child(5) {
+    width: 13%;
+    line-height: 1.25;
+    font-size: .75rem;
+}
+
+.transaction-import-table th:nth-child(6),
+.transaction-import-table td:nth-child(6) {
+    width: 12%;
+}
+
+.transaction-import-table th:nth-child(7),
+.transaction-import-table td:nth-child(7) {
+    width: 9%;
+}
+
+.transaction-import-table th:nth-child(8),
+.transaction-import-table td:nth-child(8) {
+    width: 7%;
+}
+
+.transaction-import-table td:first-child {
+    white-space: nowrap;
+}
+
+/* Select */
+.transaction-import-table .form-select {
+    height: 36px;
+    padding: .3rem 1.8rem .3rem .5rem;
+    font-size: .8rem;
+}
+
+.transaction-import-modal {
+    width: calc(100vw - 150px);
+    max-width: 1400px !important;
+    margin-left: auto;
+    margin-right: auto;
+}
