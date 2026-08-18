@@ -13,6 +13,11 @@ export default function TransactionImportModal({
     onImport
 
 }) {
+    console.log(
+    "MODAL IMPORT RESULT:",
+    importResult
+);
+
     const [changes, setChanges] = useState({});
 
     const duplicateFingerprints = new Set(
@@ -144,6 +149,7 @@ export default function TransactionImportModal({
             <TransactionImportTable
                 transactions={displayedTransactions}
                 categories={categories}
+                manualDuplicates={importResult?.manualDuplicates ?? []}
                 duplicateFingerprints={duplicateFingerprints}
                 onCategoryChange={handleCategoryChange}
                 onDescriptionChange={handleDescriptionChange}

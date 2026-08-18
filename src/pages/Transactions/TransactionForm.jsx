@@ -78,7 +78,23 @@ export default function TransactionForm({
 
     return (
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+            onSubmit={handleSubmit((data) => {
+
+                const amount = Math.abs(Number(data.amount));
+
+                const normalizedData = {
+                    ...data,
+                    amount:
+                        data.transaction_type === "Uscita"
+                            ? -amount
+                            : amount
+                };
+
+                onSubmit(normalizedData);
+
+            })}
+        >
 
             <div className="row g-3">
 

@@ -46,10 +46,7 @@ export default function TransactionsPage() {
     const [pageSize, setPageSize] = useState(25);
     const [showImportModal, setShowImportModal] = useState(false);
     const [importTransactions, setImportTransactions] = useState([]);
-    const [importResult, setImportResult] = useState({
-        duplicates: [],
-        newTransactions: []
-    });
+    const [importResult, setImportResult] = useState(null);
     const {
 
         search,
@@ -254,7 +251,24 @@ export default function TransactionsPage() {
 
                     console.log("DUPLICATI:", result.duplicates);
                     console.log("NUOVI:", result.newTransactions);
-                        setImportResult(result);
+
+                        const manualDuplicates =
+                            await transactionService.findPossibleManualDuplicates(
+                                result.newTransactions
+                            );
+
+                        console.log(
+                            "POSSIBILI DUPLICATI MANUALI:",
+                            manualDuplicates
+                        );
+                        const importResult = {
+                            duplicates: result.duplicates,
+                            newTransactions: result.newTransactions,
+                            manualDuplicates
+                        };
+
+                        console.log("RISULTATO IMPORT:", importResult);
+                        setImportResult(importResult);
 
                         setImportTransactions(normalized);
                         setShowImportModal(true);
@@ -308,10 +322,7 @@ export default function TransactionsPage() {
                 onClose={() => {
                     setShowImportModal(false);
                     setImportTransactions([]);
-                    setImportResult({
-                        duplicates: [],
-                        newTransactions: []
-                    });
+                    setImportResult(null);
                 }}
                 onImport={async (data) => {
 

@@ -264,6 +264,55 @@ const transactionService = {
             newTransactions
         };
 
+    },
+    
+    async findPossibleManualDuplicates(transactions) {
+
+        if (!transactions?.length) {
+            return [];
+        }
+
+        const dates = [
+            ...new Set(
+                transactions
+                    .map(transaction => transaction.transaction_date)
+                    .filter(Boolean)
+            )
+        ];
+
+        const { data, error } = await supabase
+            .from(TABLE)
+            .select(`
+                id,
+                transaction_date,
+                amount,
+                transaction_type,
+                description,
+                category_id
+            `)
+            .in("transaction_date", dates)
+            .is("source_fingerprint", null);
+
+        if (error)
+            throw error;
+
+        return transactions.map(transaction => {
+
+            const matches = (data ?? []).filter(existing =>
+                existing.transaction_date === transaction.transaction_date &&
+                Number(existing.amount) === Number(transaction.amount) &&
+                existing.transaction_type === transaction.transaction_type
+            );
+
+            return {
+                transaction,
+                matches
+            };
+
+        }).filter(result =>
+            result.matches.length > 0
+        );
+
     }
 };
 

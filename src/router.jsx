@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Layout from "./components/layout/Layout";
 
-import Reports from "./pages/Reports";
+import ReportPage from "./pages/Reports/ReportPage";
 import Categories from "./pages/Categories";
 import Settings from "./pages/Settings";
 import TransactionsPage from "./pages/Transactions/TransactionsPage";
@@ -32,7 +32,7 @@ export default function Router() {
 
                     <Route
                         path="/reports"
-                        element={<Reports />}
+                        element={<ReportPage />}
                     />
 
                     <Route

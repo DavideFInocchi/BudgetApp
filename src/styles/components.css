@@ -688,7 +688,6 @@
     color: var(--color-text-muted);
 }
 
-
 /* Badge duplicato */
 .transaction-import__duplicate-badge {
     display: inline-flex;
@@ -863,4 +862,54 @@
     max-width: 1400px !important;
     margin-left: auto;
     margin-right: auto;
+}
+
+.transaction-import-row--possible-duplicate td {
+    background-color: #fffaf0 !important;
+      border-bottom: 0 !important;
+}
+
+.transaction-import__possible-duplicate-badge {
+    display: inline-flex;
+    align-items: center;
+
+    margin-top: .2rem;
+    padding: .2rem .45rem;
+
+    max-width: 90px;
+
+    border-radius: 999px;
+
+    background: #fff3cd;
+    color: #856404;
+
+    font-size: .68rem;
+    font-weight: 600;
+
+    white-space: normal;
+    line-height: 1.2;
+  
+}
+.transaction-import-manual-match-row td {
+    padding-top: 0;
+    padding-bottom: .4rem;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    background: #fffaf0
+}
+
+.transaction-import__manual-match {
+    display: block;
+
+    text-align: right;
+
+    color: var(--color-text-muted);
+    font-size: .65rem;
+    line-height: 1.25;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    padding-right: .25rem;
 }
