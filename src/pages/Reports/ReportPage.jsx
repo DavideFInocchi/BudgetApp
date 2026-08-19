@@ -1,49 +1,32 @@
 ﻿
 import { useReport } from "../../hooks/useReport";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import ReportPeriodSlider from "./ReportPeriodSlider";
-import reportService from "../../services/reportService";
-
+import ReportMonthlyBalanceChart
+    from "./ReportMonthlyBalanceChart";
 import AppStatCard from "../../components/ui/AppStatCard";
 
 export default function Reports() {
 
-    const [period, setPeriod] = useState({
-        from: null,
-        to: null
-    });
+    const [selectedPeriod, setSelectedPeriod] = useState(null);
 
     const {
         periods,
+        period,
         summary,
         isLoading,
         error
-    } = useReport(period);
+    } = useReport(selectedPeriod);
 
+    const balanceDistribution =
+        summary?.balanceDistribution;
 
+    const percentile =
+        balanceDistribution?.monthlyPercentile;
 
-    useEffect(() => {
-
-        if (!periods.length)
-            return;
-
-        setPeriod(current => {
-
-            if (current.from && current.to)
-                return current;
-
-            return {
-                from: periods[0],
-                to: periods[periods.length - 1]
-            };
-
-        });
-
-    }, [periods]);
-
-    //console.log("REPORT PERIOD:", period);
-    console.log("REPORT SUMMARY:", summary);
+    const percentileDescription =
+        balanceDistribution?.percentileDescription;
     return (
 
         <div className="page">
@@ -53,11 +36,12 @@ export default function Reports() {
             <p>
                 <ReportPeriodSlider
                     periods={periods}
-                    from={period.from}
-                    to={period.to}
-                    onChange={setPeriod}
+                    from={period?.from}
+                    to={period?.to}
+                    onChange={setSelectedPeriod}
                 />
             </p>
+
             <div className="row g-4 mb-4">
 
                 <div className="col-12 col-sm-6 col-xl-3">
@@ -111,8 +95,60 @@ export default function Reports() {
                     />
 
                 </div>
+                    {percentile !== null &&
+                        percentile !== undefined && (
 
+                        <div className="mb-4">
+
+                            <div className="text-muted small">
+                                Posizione rispetto allo storico
+                            </div>
+
+                            <div className="d-flex align-items-baseline gap-2">
+
+                                <strong className="fs-3">
+                                    {Math.round(percentile)}° percentile
+                                </strong>
+
+                            </div>
+
+                            <div className="text-muted small">
+                                {percentileDescription}
+                            </div>
+
+                        </div>
+
+                    )}
+                    <ReportMonthlyBalanceChart
+
+                        distribution={
+                            summary?.balanceDistribution?.distribution ?? []
+                        }
+
+                        focusMonth={
+                            summary?.balanceDistribution?.focusMonth
+                        }
+
+                        stats={{
+                            daysInRange:
+                                summary?.balanceDistribution?.daysInRange ?? 0,
+
+                            daysBelowRange:
+                                summary?.balanceDistribution?.daysBelowRange ?? 0,
+
+                            daysAboveRange:
+                                summary?.balanceDistribution?.daysAboveRange ?? 0,
+
+                            totalDays:
+                                summary?.balanceDistribution?.totalDays ?? 0,
+
+                            percentageInRange:
+                                summary?.balanceDistribution?.percentageInRange ?? 0
+                        }}
+
+                    />
             </div>
+
         </div>
 
         );

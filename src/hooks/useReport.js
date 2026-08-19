@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import reportService from "../services/reportService";
 
-export function useReport(period) {
+export function useReport(selectedPeriod) {
 
     const periodsQuery = useQuery({
 
@@ -12,6 +12,17 @@ export function useReport(period) {
             reportService.getPeriods()
 
     });
+
+    const periods = periodsQuery.data ?? [];
+
+    const period = selectedPeriod ?? (
+        periods.length
+            ? {
+                from: periods[0],
+                to: periods[periods.length - 1]
+            }
+            : null
+    );
 
     const summaryQuery = useQuery({
 
@@ -32,7 +43,9 @@ export function useReport(period) {
 
     return {
 
-        periods: periodsQuery.data ?? [],
+        periods,
+
+        period,
 
         summary: summaryQuery.data,
 
