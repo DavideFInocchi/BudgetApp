@@ -1,6 +1,4 @@
-import { useMemo } from "react";
-
-export default function ReportPeriodSlider({
+export default function ProjectionPeriodSlider({
 
     periods = [],
     from,
@@ -44,15 +42,6 @@ export default function ReportPeriodSlider({
 
     };
 
-    const labels = useMemo(() => {
-
-        return {
-            from: formatPeriod(from),
-            to: formatPeriod(to)
-        };
-
-    }, [from, to]);
-
     const fromPercentage =
         maxIndex > 0
             ? (fromIndex / maxIndex) * 100
@@ -63,12 +52,12 @@ export default function ReportPeriodSlider({
             ? (toIndex / maxIndex) * 100
             : 0;
 
-    const handleFromChange = (event) => {
+    const handleChange = (event) => {
 
         const index =
             Number(event.target.value);
 
-        if (index > toIndex)
+        if (index >= toIndex)
             return;
 
         const newFrom =
@@ -84,44 +73,28 @@ export default function ReportPeriodSlider({
 
     };
 
-    const handleToChange = (event) => {
-
-        const index =
-            Number(event.target.value);
-
-        if (index < fromIndex)
-            return;
-
-        const newTo =
-            periods[index];
-
-        if (!newTo)
-            return;
-
-        onChange?.({
-            from,
-            to: newTo
-        });
-
-    };
-
     if (!periods.length)
         return null;
 
     return (
 
-        <div className="report-period-slider">
+        <div
+            className="report-period-slider"
+            style={{
+                width: "100%"
+            }}
+        >
 
             <div className="report-period-slider__label">
-                Periodo analizzato
+                Storico utilizzato
             </div>
 
             <div className="report-period-slider__values">
 
                 <strong>
-                    {labels.from}
+                    {formatPeriod(from)}
                     {" → "}
-                    {labels.to}
+                    {formatPeriod(to)}
                 </strong>
 
             </div>
@@ -141,27 +114,14 @@ export default function ReportPeriodSlider({
                 <input
                     type="range"
                     min={0}
-                    max={maxIndex}
+                    max={Math.max(toIndex - 1, 0)}
                     value={fromIndex}
-                    onChange={handleFromChange}
+                    onChange={handleChange}
                     className="
                         report-period-slider__input
-                        report-period-slider__input--from
+                        report-period-slider__input--projection
                     "
-                    aria-label="Inizio periodo"
-                />
-
-                <input
-                    type="range"
-                    min={0}
-                    max={maxIndex}
-                    value={toIndex}
-                    onChange={handleToChange}
-                    className="
-                        report-period-slider__input
-                        report-period-slider__input--to
-                    "
-                    aria-label="Fine periodo"
+                    aria-label="Inizio storico utilizzato"
                 />
 
             </div>
@@ -169,11 +129,11 @@ export default function ReportPeriodSlider({
             <div className="report-period-slider__endpoints">
 
                 <span>
-                    {labels.from}
+                    {formatPeriod(from)}
                 </span>
 
                 <span>
-                    {labels.to}
+                    {formatPeriod(to)}
                 </span>
 
             </div>

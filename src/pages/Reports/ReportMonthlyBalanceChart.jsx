@@ -13,6 +13,8 @@ import { Line } from "react-chartjs-2";
 
 import AppCard from "../../components/ui/AppCard";
 import { formatCurrency } from "../../utils/currency";
+import ReportFocusMonthSelector
+    from "./ReportFocusMonthSelector";
 
 ChartJS.register(
     CategoryScale,
@@ -27,46 +29,25 @@ ChartJS.register(
 export default function ReportMonthlyBalanceChart({
 
     distribution = [],
+
     focusMonth,
-    stats = {}
+
+    stats = {},
+
+    percentile,
+
+    percentileDescription,
+
+    focusPeriods = [],
+
+    onFocusMonthChange
 
 }) {
 
     const labels = distribution.map(
         item => item.day
     );
-    const focusValues = distribution.map(
-        item => item.focus
-    );
 
-    const normalValues = distribution.map(
-        item => {
-
-            if (
-                item.focus === null ||
-                item.focus === undefined
-            ) {
-                return null;
-            }
-
-            if (
-                item.p25 !== null &&
-                item.focus < item.p25
-            ) {
-                return null;
-            }
-
-            if (
-                item.p75 !== null &&
-                item.focus > item.p75
-            ) {
-                return null;
-            }
-
-            return item.focus;
-
-        }
-    );
 
         const data = {
 
@@ -206,20 +187,9 @@ export default function ReportMonthlyBalanceChart({
         },
 
         plugins: {
-
             legend: {
-
-                position: "bottom",
-
-                labels: {
-
-                    filter: item =>
-                        !["P25", "Zero"].includes(item.text)
-
-                }
-
+                display: false
             },
-
             tooltip: {
 
                 callbacks: {
@@ -285,88 +255,194 @@ export default function ReportMonthlyBalanceChart({
 
     };
 
-    return (
+return (
 
-        <AppCard>
+    <AppCard>
 
-            <div className="mb-3">
+        <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
 
-                <h5 className="mb-1">
+            <div>
+
+                <h2 className="h4 mb-1">
                     Comportamento del saldo
-                </h5>
+                </h2>
 
-                <span className="text-muted small">
-                    Il mese analizzato rispetto alla distribuzione storica
+                <p className="text-muted mb-0">
+                    Il mese selezionato rispetto alla distribuzione storica
+                </p>
+
+            </div>
+
+            <ReportFocusMonthSelector
+
+                periods={focusPeriods}
+
+                value={focusMonth}
+
+                onChange={
+                    onFocusMonthChange
+                }
+
+            />
+
+        </div>
+
+        {percentile !== null &&
+            percentile !== undefined && (
+
+            <div className="report-percentile mb-3">
+
+                <div className="report-percentile__header">
+                    Posizione rispetto allo storico
+                </div>
+
+                <div className="d-flex align-items-baseline gap-2">
+
+                    <strong className="report-percentile__value">
+                        {Math.round(percentile)}°
+                    </strong>
+
+                    <span className="report-percentile__label">
+                        percentile
+                    </span>
+
+                    <span className="report-percentile__description">
+                        {percentileDescription}
+                    </span>
+
+                </div>
+
+            </div>
+
+        )}
+
+        <div
+            style={{
+                width: "100%",
+                height: 320
+            }}
+        >
+
+            <Line
+                data={data}
+                options={options}
+            />
+
+        </div>
+        <div className="report-monthly-balance-legend">
+
+            <div className="report-monthly-balance-legend__item">
+
+                <span
+                    className="report-monthly-balance-legend__area"
+                />
+
+                <span>
+                    Fascia storica
                 </span>
 
             </div>
 
-            <div
-                style={{
-                    width: "100%",
-                    height: 360
-                }}
-            >
+            <div className="report-monthly-balance-legend__item">
 
-                <Line
-                    data={data}
-                    options={options}
+                <span
+                    className="report-monthly-balance-legend__median"
                 />
 
-            </div>
-            <div className="mt-3 pt-3 border-top">
-
-                <div className="small text-muted mb-2">
-                    Comportamento rispetto alla fascia storica
-                </div>
-
-                <div className="d-flex flex-wrap gap-4">
-
-                    <div>
-                        <strong>
-                            {stats.daysInRange}
-                        </strong>
-
-                        <span className="text-muted ms-1">
-                            giorni nella fascia
-                        </span>
-                    </div>
-
-                    <div>
-                        <strong>
-                            {stats.daysBelowRange}
-                        </strong>
-
-                        <span className="text-muted ms-1">
-                            sotto fascia
-                        </span>
-                    </div>
-
-                    <div>
-                        <strong>
-                            {stats.daysAboveRange}
-                        </strong>
-
-                        <span className="text-muted ms-1">
-                            sopra fascia
-                        </span>
-                    </div>
-
-                    <div>
-                        <strong>
-                            {Math.round(stats.percentageInRange)}%
-                        </strong>
-
-                        <span className="text-muted ms-1">
-                            nella fascia
-                        </span>
-                    </div>
-
-                </div>
+                <span>
+                    Mediana storica
+                </span>
 
             </div>
-        </AppCard>
 
-    );
+            <div className="report-monthly-balance-legend__item">
+
+                <span
+                    className="report-monthly-balance-legend__focus"
+                />
+
+                <span>
+                    {focusMonth
+                        ? new Date(
+                            `${focusMonth}-01T00:00:00`
+                        ).toLocaleDateString(
+                            "it-IT",
+                            {
+                                month: "long",
+                                year: "numeric"
+                            }
+                        )
+                        : "Mese selezionato"
+                    }
+                </span>
+
+            </div>
+
+        </div>
+        <div className="mt-3 pt-3 border-top">
+
+            <div className="small text-muted mb-2">
+                Comportamento rispetto alla fascia storica
+            </div>
+
+            <div className="d-flex flex-wrap gap-4">
+
+                <div>
+
+                    <strong>
+                        {stats.daysInRange}
+                    </strong>
+
+                    <span className="text-muted ms-1">
+                        giorni nella fascia
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        {stats.daysBelowRange}
+                    </strong>
+
+                    <span className="text-muted ms-1">
+                        sotto fascia
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        {stats.daysAboveRange}
+                    </strong>
+
+                    <span className="text-muted ms-1">
+                        sopra fascia
+                    </span>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        {Math.round(
+                            stats.percentageInRange
+                        )}%
+                    </strong>
+
+                    <span className="text-muted ms-1">
+                        nella fascia
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </AppCard>
+
+);
 
 }

@@ -41,35 +41,13 @@ const reportService = {
                         getNextMonth(period.to)
                     )
                 );
- 
+
         if (periodError)
             throw periodError;
 
 
-        // ==============================
-        // TUTTO LO STORICO
-        // ==============================
-
-        const {
-            data: historicalData,
-            error: historicalError
-        } = await supabase
-
-            .from("vw_transactions")
-
-            .select(
-                "transaction_date, transaction_type, amount, balance_type"
-            );
-
-        if (historicalError)
-            throw historicalError;
-
-
         const transactions =
             periodData ?? [];
-
-        const historicalTransactions =
-            historicalData ?? [];
 
 
         // ==============================
@@ -112,13 +90,12 @@ const reportService = {
             );
 
 
-
         const averageMonthlyBalance =
             months.length > 0
                 ? balance / months.length
                 : 0;
 
-        const focusMonth = period.to.slice(0, 7);       
+
         // ==============================
         // RISULTATO
         // ==============================
@@ -138,18 +115,30 @@ const reportService = {
             monthlyBalance:
                 buildMonthlyBalance(
                     transactions
-                ),
-
-            balanceDistribution:
-                buildBalanceDistribution(
-                    historicalTransactions,
-                    focusMonth
                 )
 
         };
 
-    }
+    },
+    async getFocusDistribution(focusMonth) {
 
+        const { data, error } = await supabase
+
+            .from("vw_transactions")
+
+            .select(
+                "transaction_date, transaction_type, amount, balance_type"
+            );
+
+        if (error)
+            throw error;
+
+        return buildBalanceDistribution(
+            data ?? [],
+            focusMonth
+        );
+
+    }
 };
 
 function getMonthsInPeriod(from, to) {

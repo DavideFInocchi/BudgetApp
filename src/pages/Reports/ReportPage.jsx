@@ -1,5 +1,4 @@
-﻿
-import { useReport } from "../../hooks/useReport";
+﻿import { useReport } from "../../hooks/useReport";
 import { useState } from "react";
 
 import ReportPeriodSlider from "./ReportPeriodSlider";
@@ -7,9 +6,27 @@ import ReportMonthlyBalanceChart
     from "./ReportMonthlyBalanceChart";
 import AppStatCard from "../../components/ui/AppStatCard";
 
+import { useProjection }
+    from "../../hooks/useProjection";
+import ReportProjection
+    from "./ReportProjection";
+import { useProjectionPeriods }
+    from "../../hooks/useProjectionPeriods";
+
+import { useReportFocus }
+    from "../../hooks/useReportFocus";
+
+
 export default function Reports() {
 
-    const [selectedPeriod, setSelectedPeriod] = useState(null);
+    // ==========================================
+    // PERIODO PRINCIPALE DEL REPORT
+    // ==========================================
+
+    const [
+        selectedPeriod,
+        setSelectedPeriod
+    ] = useState(null);
 
     const {
         periods,
@@ -17,60 +34,149 @@ export default function Reports() {
         summary,
         isLoading,
         error
-    } = useReport(selectedPeriod);
+    } = useReport(
+        selectedPeriod
+    );
 
-    const balanceDistribution =
-        summary?.balanceDistribution;
 
-    const percentile =
-        balanceDistribution?.monthlyPercentile;
+    // ==========================================
+    // MESE FOCUS DEL GRAFICO STATISTICO
+    // ==========================================
 
-    const percentileDescription =
-        balanceDistribution?.percentileDescription;
+    const [
+        selectedFocusMonth,
+        setSelectedFocusMonth
+    ] = useState(null);
+
+    const defaultFocusMonth =
+        periods.at(-1)?.slice(0, 7) ?? null;
+
+    const focusMonth =
+        selectedFocusMonth ??
+        defaultFocusMonth;
+
+    const {
+        data: focusDistribution
+    } = useReportFocus(
+        focusMonth
+    );
+
+
+    // ==========================================
+    // PROIEZIONE
+    // ==========================================
+
+    const [
+        selectedProjectionPeriod,
+        setSelectedProjectionPeriod
+    ] = useState(null);
+
+    const {
+        data: projectionPeriods
+    } = useProjectionPeriods();
+
+    const availablePeriods =
+        projectionPeriods ?? [];
+
+    const defaultProjectionPeriod =
+        availablePeriods.length > 0
+            ? {
+                from:
+                    availablePeriods[
+                        Math.max(
+                            availablePeriods.length - 6,
+                            0
+                        )
+                    ],
+
+                to:
+                    availablePeriods.at(-1)
+            }
+            : null;
+
+    const projectionPeriod =
+        selectedProjectionPeriod ??
+        defaultProjectionPeriod;
+
+    const {
+        data: projection
+    } = useProjection(
+        projectionPeriod
+    );
+
+
+    // ==========================================
+    // RENDER
+    // ==========================================
+
     return (
 
-        <div className="page">
+        <div className="page report-page">
+            <h1 className="mb-3">Reports</h1>
 
-            <h1>Reports</h1>
-            
-            <p>
+            {/* ==================================
+                PERIODO PRINCIPALE
+            ================================== */}
+
+            <div className="mb-3 report-main-period">
+
                 <ReportPeriodSlider
+
                     periods={periods}
+
                     from={period?.from}
+
                     to={period?.to}
-                    onChange={setSelectedPeriod}
+
+                    onChange={
+                        setSelectedPeriod
+                    }
+
                 />
-            </p>
 
-            <div className="row g-4 mb-4">
+            </div>
 
+
+            {/* ==================================
+                SUMMARY
+            ================================== */}
+
+            <div className="row g-3 mb-3">
                 <div className="col-12 col-sm-6 col-xl-3">
 
                     <AppStatCard
                         title="Entrate"
-                        value={summary?.income ?? 0}
+                        value={
+                            summary?.income ?? 0
+                        }
                         icon="arrow-down-left"
                         variant="success"
                     />
 
                 </div>
 
+
                 <div className="col-12 col-sm-6 col-xl-3">
 
                     <AppStatCard
                         title="Uscite"
-                        value={summary?.expenses ?? 0}
+                        value={
+                            summary?.expenses ?? 0
+                        }
                         icon="arrow-up-right"
                         variant="danger"
                     />
 
                 </div>
 
+
                 <div className="col-12 col-sm-6 col-xl-3">
 
                     <AppStatCard
                         title="Saldo"
-                        value={summary?.balance ?? 0}
+                        value={
+                            summary?.balance ?? 0
+                        }
                         icon="wallet2"
                         variant={
                             (summary?.balance ?? 0) >= 0
@@ -81,76 +187,116 @@ export default function Reports() {
 
                 </div>
 
+
                 <div className="col-12 col-sm-6 col-xl-3">
 
                     <AppStatCard
                         title="Saldo medio mensile"
-                        value={summary?.averageMonthlyBalance ?? 0}
+                        value={
+                            summary?.averageMonthlyBalance ?? 0
+                        }
                         icon="graph-up"
                         variant={
-                            (summary?.averageMonthlyBalance ?? 0) >= 0
+                            (
+                                summary?.averageMonthlyBalance ?? 0
+                            ) >= 0
                                 ? "success"
                                 : "danger"
                         }
                     />
 
                 </div>
-                    {percentile !== null &&
-                        percentile !== undefined && (
 
-                        <div className="mb-4">
-
-                            <div className="text-muted small">
-                                Posizione rispetto allo storico
-                            </div>
-
-                            <div className="d-flex align-items-baseline gap-2">
-
-                                <strong className="fs-3">
-                                    {Math.round(percentile)}° percentile
-                                </strong>
-
-                            </div>
-
-                            <div className="text-muted small">
-                                {percentileDescription}
-                            </div>
-
-                        </div>
-
-                    )}
-                    <ReportMonthlyBalanceChart
-
-                        distribution={
-                            summary?.balanceDistribution?.distribution ?? []
-                        }
-
-                        focusMonth={
-                            summary?.balanceDistribution?.focusMonth
-                        }
-
-                        stats={{
-                            daysInRange:
-                                summary?.balanceDistribution?.daysInRange ?? 0,
-
-                            daysBelowRange:
-                                summary?.balanceDistribution?.daysBelowRange ?? 0,
-
-                            daysAboveRange:
-                                summary?.balanceDistribution?.daysAboveRange ?? 0,
-
-                            totalDays:
-                                summary?.balanceDistribution?.totalDays ?? 0,
-
-                            percentageInRange:
-                                summary?.balanceDistribution?.percentageInRange ?? 0
-                        }}
-
-                    />
             </div>
 
+
+            {/* ==================================
+                DISTRIBUZIONE STORICA
+            ================================== */}
+            <div className="report-section">
+                <ReportMonthlyBalanceChart
+
+                    distribution={
+                        focusDistribution?.distribution ?? []
+                    }
+
+                    focusMonth={
+                        focusDistribution?.focusMonth
+                    }
+
+                    stats={{
+
+                        daysInRange:
+                            focusDistribution?.daysInRange ?? 0,
+
+                        daysBelowRange:
+                            focusDistribution?.daysBelowRange ?? 0,
+
+                        daysAboveRange:
+                            focusDistribution?.daysAboveRange ?? 0,
+
+                        totalDays:
+                            focusDistribution?.totalDays ?? 0,
+
+                        percentageInRange:
+                            focusDistribution?.percentageInRange ?? 0
+
+                    }}
+
+                    percentile={
+                        focusDistribution?.monthlyPercentile
+                    }
+
+                    percentileDescription={
+                        focusDistribution?.percentileDescription
+                    }
+
+                    focusPeriods={
+                        periods
+                    }
+
+                    onFocusMonthChange={
+                        setSelectedFocusMonth
+                    }
+
+                />
+
+            </div>
+            
+            {/* ==================================
+                PROIEZIONE
+            ================================== */}
+            <div className="report-section">
+                <ReportProjection
+
+                    historical={
+                        projection?.historical ?? []
+                    }
+
+                    projection={
+                        projection?.projection ?? []
+                    }
+
+                    projectionPeriods={
+                        availablePeriods
+                    }
+
+                    projectionFrom={
+                        projectionPeriod?.from
+                    }
+
+                    projectionTo={
+                        projectionPeriod?.to
+                    }
+
+                    onProjectionPeriodChange={
+                        setSelectedProjectionPeriod
+                    }
+
+                />
+            </div>
         </div>
 
-        );
+    );
 
 }

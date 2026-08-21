@@ -6,3 +6,7 @@ export function formatCurrency(value) {
     currency: "EUR",
   }).format(value ?? 0);
 }
+
+export function roundCurrency(value) {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+}

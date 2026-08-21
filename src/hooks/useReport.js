@@ -13,16 +13,18 @@ export function useReport(selectedPeriod) {
 
     });
 
-    const periods = periodsQuery.data ?? [];
+    const periods =
+        periodsQuery.data ?? [];
 
-    const period = selectedPeriod ?? (
-        periods.length
-            ? {
-                from: periods[0],
-                to: periods[periods.length - 1]
-            }
-            : null
-    );
+    const period =
+        selectedPeriod ?? (
+            periods.length
+                ? {
+                    from: periods[0],
+                    to: periods[periods.length - 1]
+                }
+                : null
+        );
 
     const summaryQuery = useQuery({
 
@@ -47,7 +49,8 @@ export function useReport(selectedPeriod) {
 
         period,
 
-        summary: summaryQuery.data,
+        summary:
+            summaryQuery.data,
 
         isLoading:
             periodsQuery.isLoading ||
