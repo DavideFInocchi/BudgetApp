@@ -166,17 +166,40 @@ function getMonthsInPeriod(from, to) {
     return months;
 
 }
+
 function getNextMonth(period) {
 
-    const date = new Date(`${period}T00:00:00`);
+    const [year, month] =
+        String(period)
+            .slice(0, 7)
+            .split("-")
+            .map(Number);
 
-    date.setMonth(
-        date.getMonth() + 1
-    );
+    if (
+        !Number.isInteger(year) ||
+        !Number.isInteger(month)
+    ) {
+        throw new Error(
+            `Periodo non valido: ${period}`
+        );
+    }
 
-    return date;
+    const nextMonth =
+        month === 12
+            ? 1
+            : month + 1;
+
+    const nextYear =
+        month === 12
+            ? year + 1
+            : year;
+
+    return `${nextYear}-${String(
+        nextMonth
+    ).padStart(2, "0")}-01`;
 
 }
+
 function buildMonthlyBalance(transactions) {
 
     const months = new Map();
