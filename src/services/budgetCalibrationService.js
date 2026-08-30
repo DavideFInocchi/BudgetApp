@@ -442,6 +442,11 @@ function buildCategoryMetrics(
                     category.categoryId
                 ) ?? 0;
 
+            const historicalBudgetMedian =
+                median(
+                    budgetValues
+                );
+
             const ordinaryMedianConsumption =
                 median(
                     ordinaryValues.map(
@@ -452,14 +457,16 @@ function buildCategoryMetrics(
             const structuralGap =
                 Math.max(
                     ordinaryMedianConsumption -
-                    currentBudget,
+                    historicalBudgetMedian,
                     0
                 );
 
             const structuralGapRate =
-                currentBudget > 0
-                    ? structuralGap / currentBudget
+                historicalBudgetMedian > 0
+                    ? structuralGap /
+                    historicalBudgetMedian
                     : 0;
+
             const ordinaryTrend =
                 trendSlope(
                     ordinaryValues
@@ -592,6 +599,8 @@ function buildCategoryMetrics(
                 },
                 
                 currentBudget,
+
+                historicalBudgetMedian,
 
                 structuralGap,
 
@@ -1252,9 +1261,23 @@ function getRecommendation(
             correctionFactor;
 
         const suggestedBudget =
-            category.currentBudget +
+            category.historicalBudgetMedian +
             suggestedIncrease;
 
+        const remainingIncrease =
+            Math.max(
+                suggestedBudget -
+                category.currentBudget,
+                0
+            );
+        if (remainingIncrease <= 0.01) {
+
+            return {
+                type: "maintain",
+                reason: "target_already_reached"
+            };
+
+        }
         return {
 
             type: "increase",
@@ -1271,8 +1294,10 @@ function getRecommendation(
 
             suggestedBudget,
 
+            remainingIncrease,
+
             financiallyAffordable:
-                suggestedIncrease <=
+                remainingIncrease <=
                 prudentialMarginAvailable
 
         };

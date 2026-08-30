@@ -138,6 +138,33 @@ const reportService = {
             focusMonth
         );
 
+    },
+    async getTransactions(period) {
+
+        const {
+            data,
+            error
+        } = await supabase
+            .from("vw_transactions")
+            .select(
+                "transaction_date, transaction_type, amount, balance_type, category_id, category_name"
+            )
+            .gte(
+                "transaction_date",
+                formatSqlDate(period.from)
+            )
+            .lt(
+                "transaction_date",
+                formatSqlDate(
+                    getNextMonth(period.to)
+                )
+            );
+
+        if (error)
+            throw error;
+
+        return data ?? [];
+
     }
 };
 

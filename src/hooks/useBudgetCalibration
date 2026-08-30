@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import budgetCalibrationService
     from "../services/budgetCalibrationService";
+
+
 function normalizeMonth(value) {
 
     if (!value)
@@ -20,24 +22,29 @@ function normalizeMonth(value) {
     );
 
 }
+
+
 export function useBudgetCalibration(targetMonth) {
 
     // ==========================================
     // PERIODI DISPONIBILI
     // ==========================================
+
     const normalizedTargetMonth =
         normalizeMonth(targetMonth);
-    const periodsQuery = useQuery({
 
-        queryKey: [
-            "budget-calibration-periods"
-        ],
+    const periodsQuery =
+        useQuery({
 
-        queryFn: () =>
-            budgetCalibrationService
-                .getCalibrationPeriods()
+            queryKey: [
+                "budget-calibration-periods"
+            ],
 
-    });
+            queryFn: () =>
+                budgetCalibrationService
+                    .getCalibrationPeriods()
+
+        });
 
     const periods =
         periodsQuery.data ?? [];
@@ -70,14 +77,32 @@ export function useBudgetCalibration(targetMonth) {
 
     // ==========================================
     // PERIODI UTILIZZABILI
+    // Solo mesi precedenti al target
     // ==========================================
 
     const availablePeriods =
         periods.filter(
             period =>
                 period <=
-                lastCompletedMonth
+                lastCompletedMonth &&
+                (
+                    !normalizedTargetMonth ||
+                    period <
+                    normalizedTargetMonth
+                )
         );
+
+
+    // ==========================================
+    // FINE PERIODO DI ANALISI
+    // ==========================================
+
+    const analysisTo =
+        availablePeriods.length > 0
+            ? availablePeriods[
+                availablePeriods.length - 1
+            ]
+            : null;
 
 
     // ==========================================
@@ -115,13 +140,13 @@ export function useBudgetCalibration(targetMonth) {
 
 
     const analysisPeriod =
-        from
+        from && analysisTo
             ? {
 
                 from,
 
                 to:
-                    lastCompletedMonth
+                    analysisTo
 
             }
             : null;
@@ -145,6 +170,7 @@ export function useBudgetCalibration(targetMonth) {
                 budgetCalibrationService.getMetrics({
 
                     analysisPeriod,
+
                     targetMonth:
                         normalizedTargetMonth
 
@@ -174,7 +200,7 @@ export function useBudgetCalibration(targetMonth) {
             from,
 
         calibrationTo:
-            lastCompletedMonth,
+            analysisTo,
 
         analysisPeriod,
 
@@ -190,6 +216,7 @@ export function useBudgetCalibration(targetMonth) {
         error:
             periodsQuery.error ||
             calibrationQuery.error,
+
         targetMonth:
             normalizedTargetMonth
 

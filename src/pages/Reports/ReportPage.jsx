@@ -4,6 +4,9 @@ import { useState } from "react";
 import ReportPeriodSlider from "./ReportPeriodSlider";
 import ReportMonthlyBalanceChart
     from "./ReportMonthlyBalanceChart";
+
+import ReportPeriodComparisonSankey 
+    from "./ReportPeriodComparisonSankey";
 import AppStatCard from "../../components/ui/AppStatCard";
 
 import { useProjection }
@@ -15,6 +18,10 @@ import { useProjectionPeriods }
 
 import { useReportFocus }
     from "../../hooks/useReportFocus";
+
+import { useReportComparison }
+    from "../../hooks/useReportComparison";
+
 
 
 export default function Reports() {
@@ -37,7 +44,15 @@ export default function Reports() {
     } = useReport(
         selectedPeriod
     );
+    const [
+        comparisonPeriodA,
+        setComparisonPeriodA
+    ] = useState(null);
 
+    const [
+        comparisonPeriodB,
+        setComparisonPeriodB
+    ] = useState(null);
 
     // ==========================================
     // MESE FOCUS DEL GRAFICO STATISTICO
@@ -61,7 +76,30 @@ export default function Reports() {
         focusMonth
     );
 
+    const availableComparisonPeriods =
+        periods ?? [];
 
+    const defaultComparisonPeriodB =
+        comparisonPeriodB ??
+        availableComparisonPeriods.at(-1) ??
+        null;
+
+    const defaultComparisonPeriodA =
+        comparisonPeriodA ??
+        (
+            availableComparisonPeriods.length > 1
+                ? availableComparisonPeriods[
+                    availableComparisonPeriods.length - 2
+                ]
+                : null
+        );
+    const {
+        transactionsA,
+        transactionsB
+    } = useReportComparison(
+        defaultComparisonPeriodA,
+        defaultComparisonPeriodB
+    );
     // ==========================================
     // PROIEZIONE
     // ==========================================
@@ -295,6 +333,39 @@ export default function Reports() {
 
                 />
             </div>
+            <ReportPeriodComparisonSankey
+
+                periodA={
+                    defaultComparisonPeriodA
+                }
+
+                periodB={
+                    defaultComparisonPeriodB
+                }
+
+                periods={
+                    availableComparisonPeriods
+                }
+
+                onPeriodAChange={
+                    setComparisonPeriodA
+                }
+
+                onPeriodBChange={
+                    setComparisonPeriodB
+                }
+
+                transactionsA={
+                    transactionsA
+                }
+
+                transactionsB={
+                    transactionsB
+                }
+
+            />
+
+            
         </div>
 
     );

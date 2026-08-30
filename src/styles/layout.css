@@ -31,6 +31,19 @@
 
   padding: var(--space-lg);
 
+  /*
+   * Sidebar indipendente dallo scroll della pagina.
+   */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  z-index: 1000;
+
   transition:
     width var(--transition-normal),
     flex-basis var(--transition-normal),
@@ -93,6 +106,8 @@
   overflow-x: hidden;
 
   container-type: inline-size;
+
+  margin-left: 260px;
 }
 
 /* ==========================
@@ -193,6 +208,9 @@
 
 @media (max-width: 900px) {
 
+  .app-content {
+    margin-left: 72px;
+  }
   .sidebar {
     width: 72px;
     flex: 0 0 72px;

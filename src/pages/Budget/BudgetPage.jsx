@@ -318,14 +318,7 @@ export default function BudgetPage() {
 
         <div className="container-fluid">
 
-            <BudgetToolbar
-                period={selectedPeriod}
-                periods={periods}
-                onPeriodChange={
-                    setSelectedPeriod
-                }
-                onSave={handleSave}
-            />
+
 
             {/* ========================
                 CALIBRATION
@@ -379,7 +372,14 @@ export default function BudgetPage() {
                 ======================== */}
 
             <AppCard>
-
+                <BudgetToolbar
+                    period={selectedPeriod}
+                    periods={periods}
+                    onPeriodChange={
+                    setSelectedPeriod
+                    }
+                    onSave={handleSave}
+                />
                 {budgets.length === 0 ? (
 
                     <BudgetEmptyState

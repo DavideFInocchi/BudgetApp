@@ -2,271 +2,298 @@ import { useState } from "react";
 
 export default function BudgetCalibrationRecommendations({
     calibration,
-    onApply
+    onApply,
+    appliedChanges = {}
 }) {
 
-    if (!calibration)
+    if (!calibration?.categories?.length) {
         return null;
+    }
 
     const categories =
-        calibration.categories ?? [];
-
-    const recommendations =
-        categories.filter(category => {
-
-            const type =
-                category.recommendation?.type;
-
-            return (
-                type === "increase" ||
-                type === "decrease"
-            );
-
-        });
-
-    if (!recommendations.length) {
-
-        return (
-            <div className="small text-muted mt-3">
-                Nessuna modifica consigliata per il periodo analizzato.
-            </div>
+        calibration.categories.filter(
+            category =>
+                category.recommendation?.type ===
+                    "increase" ||
+                category.recommendation?.type ===
+                    "decrease"
         );
 
+    if (!categories.length) {
+        return null;
     }
 
     const formatAmount = value =>
-        new Intl.NumberFormat(
+        Number(value ?? 0).toLocaleString(
             "it-IT",
             {
                 style: "currency",
-                currency: "EUR"
+                currency: "EUR",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }
-        ).format(
-            Number(value) || 0
         );
 
     return (
 
         <div className="mt-4">
 
-            <h5 className="mb-3">
+            <h5 className="mb-1">
                 Categorie da rivedere
             </h5>
 
-            <div className="d-flex flex-column gap-2">
+            <div className="small text-muted mb-3">
+                Il suggerimento è automatico; la modifica finale
+                resta a tua scelta.
+            </div>
 
-                {recommendations.map(category => {
+            <div>
 
-                    const recommendation =
-                        category.recommendation;
+                {categories.map(category => (
 
-                    const type =
-                        recommendation.type;
+                    <BudgetCalibrationRecommendationRow
+                        key={
+                            category.categoryId
+                        }
+                        category={
+                            category
+                        }
+                        appliedBudget={
+                            appliedChanges[
+                                category.categoryId
+                            ]
+                        }
+                        onApply={
+                            onApply
+                        }
+                        formatAmount={
+                            formatAmount
+                        }
+                    />
 
-                    const suggestedBudget =
-                        recommendation.suggestedBudget ?? 0;
-
-                    const requestedIncrease =
-                        recommendation.suggestedIncrease ?? 0;
-                    const currentBudget =
-                        Number(category.currentBudget) || 0;
-
-                    const suggestedChange =
-                        suggestedBudget -
-                        currentBudget;
-
-                    const allocatedIncrease =
-                        category.allocation?.allocatedIncrease ?? 0;
-
-                    const uncoveredIncrease =
-                        Math.max(
-                            requestedIncrease -
-                            allocatedIncrease,
-                            0
-                        );
-                    const allocatedBudget =
-                        category.allocation?.allocatedBudget ??
-                        category.currentBudget;
-
-
-
-                    return (
-
-                        <BudgetCalibrationRecommendationRow
-                            key={category.categoryId}
-                            category={category}
-                            type={type}
-                            suggestedBudget={suggestedBudget}
-                            requestedIncrease={requestedIncrease}
-                            allocatedIncrease={allocatedIncrease}
-                            allocatedBudget={allocatedBudget}
-                            uncoveredIncrease={uncoveredIncrease}
-                            onApply={newBudget =>
-                                onApply?.(
-                                    category,
-                                    newBudget
-                                )
-                            }
-                            formatAmount={formatAmount}
-                            suggestedChange={suggestedChange}
-                        />
-
-                    );
-
-                })}
+                ))}
 
             </div>
 
         </div>
 
     );
-
 }
 
 
 function BudgetCalibrationRecommendationRow({
     category,
-    type,
-    suggestedBudget,
-    requestedIncrease,
-    allocatedIncrease,
-    allocatedBudget,
-    uncoveredIncrease,
-    onApply,
-    formatAmount,
     appliedBudget,
-    suggestedChange
+    onApply,
+    formatAmount
 }) {
 
     const recommendation =
-        category.recommendation;
+        category.recommendation ?? {};
+
+    const type =
+        recommendation.type;
 
     const currentBudget =
-        Number(category.currentBudget) || 0;
-
-    const [
-        value,
-        setValue
-    ] = useState(
         Number(
-            appliedBudget ?? suggestedBudget
-        ).toFixed(2)
-    );
+            category.currentBudget
+        ) || 0;
 
-    const isApplied =
-        appliedBudget !== undefined;
+    const suggestedBudget =
+        Number(
+            recommendation.suggestedBudget
+        ) || currentBudget;
 
-    const numericValue =
-        Number(value) || 0;
-
-    const difference =
-        numericValue -
+    const suggestedChange =
+        suggestedBudget -
         currentBudget;
 
     const isIncrease =
         type === "increase";
 
-    const handleApply = () => {
+    const allocation =
+        category.allocation ?? null;
 
-        const numericBudget =
-            Number(value);
+    const allocatedIncrease =
+        Number(
+            allocation?.allocatedIncrease
+        ) || 0;
+
+    const requestedIncrease =
+        Number(
+            recommendation.suggestedIncrease
+        ) || 0;
+
+    const uncoveredIncrease =
+        Math.max(
+            requestedIncrease -
+            allocatedIncrease,
+            0
+        );
+
+    const isApplied =
+        appliedBudget !== undefined;
+
+    const initialValue =
+        appliedBudget ??
+        suggestedBudget;
+
+    const [
+        value,
+        setValue
+    ] = useState(
+        Number(initialValue).toFixed(2)
+    );
+
+    const numericValue =
+        Number(value);
+
+    const selectedDifference =
+        numericValue -
+        currentBudget;
+
+    const handleApply = () => {
 
         if (
             !Number.isFinite(
-                numericBudget
+                numericValue
             ) ||
-            numericBudget < 0
+            numericValue < 0
         ) {
             return;
         }
 
         onApply?.(
-            numericBudget
+            category,
+            numericValue
         );
 
     };
 
     return (
 
-        <div className="border rounded-3 px-3 py-2">
+        <div className="border rounded-3 px-3 py-2 mb-2">
 
             <div className="row align-items-center g-2">
 
-                {/* CATEGORIA */}
-                <div className="col-12 col-lg-3">
+                {/* =========================
+                    CATEGORIA
+                    ========================= */}
+
+                <div className="col-12 col-xl-3">
 
                     <div className="fw-semibold">
-                        {category.categoryName}
+                        {
+                            category.categoryName
+                        }
                     </div>
 
                     <div className="small text-muted">
+
                         Budget attuale{" "}
                         {formatAmount(
                             currentBudget
                         )}
+
                     </div>
 
                 </div>
 
 
-                {/* SUGGERIMENTO */}
-                <div className="small text-muted">
-                    Suggerimento
-                </div>
-                <div className="fw-semibold">
+                {/* =========================
+                    SUGGERIMENTO
+                    ========================= */}
 
-                    {formatAmount(
-                        suggestedBudget
-                    )}
+                <div className="col-12 col-md-6 col-xl-3">
 
-                    <span
-                        className={
-                            type === "increase"
-                                ? "text-success ms-2"
-                                : "text-danger ms-2"
-                        }
-                    >
+                    <div className="small text-muted">
+                        Suggerimento
+                    </div>
 
-                        {suggestedChange > 0
-                            ? "+"
-                            : ""}
+                    <div className="fw-semibold">
 
                         {formatAmount(
-                            suggestedChange
+                            suggestedBudget
                         )}
 
-                    </span>
+                        <span
+                            className={
+                                `ms-2 ${
+                                    suggestedChange > 0
+                                        ? "text-success"
+                                        : suggestedChange < 0
+                                            ? "text-danger"
+                                            : "text-muted"
+                                }`
+                            }
+                        >
 
-                </div>
-                {type === "increase" &&
-                    uncoveredIncrease > 0 && (
+                            {suggestedChange > 0
+                                ? "+"
+                                : ""}
+
+                            {formatAmount(
+                                suggestedChange
+                            )}
+
+                        </span>
+
+                    </div>
+
+                    {isIncrease &&
+                        recommendation
+                            .correctionFactor < 1 && (
+
+                        <div className="small text-muted">
+
+                            Correzione prudenziale{" "}
+                            {Math.round(
+                                recommendation
+                                    .correctionFactor *
+                                100
+                            )}
+                            %
+
+                        </div>
+
+                    )}
+
+                    {isIncrease &&
+                        uncoveredIncrease > 0 && (
 
                         <div className="small text-danger">
 
-                            Margine disponibile insufficiente.
+                            Margine insufficiente:
                             {" "}
-                            Coperti{" "}
                             {formatAmount(
                                 allocatedIncrease
                             )}
                             {" "}
-                            su{" "}
+                            di{" "}
                             {formatAmount(
                                 requestedIncrease
-                            )}.
+                            )}
+                            {" "}
+                            coperti
 
                         </div>
 
-                )}
+                    )}
 
-                {/* SCELTA UTENTE */}
-                <div className="col-12 col-lg-4">
+                </div>
+
+
+                {/* =========================
+                    TUA SCELTA
+                    ========================= */}
+
+                <div className="col-12 col-md-6 col-xl-4">
 
                     <div className="small text-muted">
                         Tua scelta
                     </div>
 
-                    <div className="input-group">
+                    <div className="input-group input-group-sm">
 
                         <input
                             type="number"
@@ -299,13 +326,12 @@ function BudgetCalibrationRecommendationRow({
 
                     <div className="small text-muted mt-1">
 
-                        Variazione:
-                        {" "}
-                        {difference >= 0
+                        Variazione:{" "}
+                        {selectedDifference > 0
                             ? "+"
                             : ""}
                         {formatAmount(
-                            difference
+                            selectedDifference
                         )}
 
                     </div>
@@ -313,8 +339,11 @@ function BudgetCalibrationRecommendationRow({
                 </div>
 
 
-                {/* STATO */}
-                <div className="col-12 col-lg-2 text-lg-end">
+                {/* =========================
+                    STATO
+                    ========================= */}
+
+                <div className="col-12 col-xl-2 text-xl-end">
 
                     {isApplied ? (
 
@@ -333,9 +362,11 @@ function BudgetCalibrationRecommendationRow({
                                     : "badge bg-warning text-dark"
                             }
                         >
+
                             {isIncrease
                                 ? "Aumentare"
                                 : "Ridurre"}
+
                         </span>
 
                     )}

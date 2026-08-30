@@ -91,3 +91,41 @@ select,
 textarea {
   font: inherit;
 }
+
+
+/* ==========================================================
+   Layout
+   ========================================================== */
+
+:root {
+    --sidebar-width: 280px;
+}
+
+/*
+ * Il layout occupa almeno tutta la viewport.
+ */
+.app-layout {
+    min-height: 100vh;
+}
+
+/*
+ * Sidebar sempre visibile durante lo scroll.
+ */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+/*
+ * Il contenuto viene spostato a destra della sidebar.
+ */
+.app-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    min-width: 0;
+}
