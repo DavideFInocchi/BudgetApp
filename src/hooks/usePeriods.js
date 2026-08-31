@@ -3,15 +3,23 @@ import { useEffect, useState } from "react";
 import transactionService from "../services/transactionService";
 import { buildPeriods } from "../utils/periodUtils";
 
+const DASHBOARD_PERIOD_STORAGE_KEY =
+    "budgetapp.dashboard.period";
+
 export function usePeriods() {
 
-    const [periods, setPeriods] = useState([]);
+    const [periods, setPeriods] =
+        useState([]);
 
-    const [selectedPeriod, setSelectedPeriod] = useState(null);
+    const [selectedPeriod, setSelectedPeriod] =
+        useState(null);
 
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] =
+        useState(true);
 
-    const [error, setError] = useState(null);
+    const [error, setError] =
+        useState(null);
+
 
     useEffect(() => {
 
@@ -20,22 +28,61 @@ export function usePeriods() {
             try {
 
                 const availablePeriods =
-                    await transactionService.getAvailablePeriods();
+                    await transactionService
+                        .getAvailablePeriods();
 
                 const builtPeriods =
-                    buildPeriods(availablePeriods);
+                    buildPeriods(
+                        availablePeriods
+                    );
 
-                setPeriods(builtPeriods);
+                setPeriods(
+                    builtPeriods
+                );
 
-                setSelectedPeriod(builtPeriods[0] ?? null);
+
+                /*
+                 * Recuperiamo l'ultimo periodo
+                 * selezionato dalla Dashboard.
+                 */
+                const savedPeriod =
+                    localStorage.getItem(
+                        DASHBOARD_PERIOD_STORAGE_KEY
+                    );
+
+
+                const savedPeriodObject =
+                    builtPeriods.find(
+                        period =>
+                            period.key ===
+                            savedPeriod
+                    );
+
+
+                /*
+                 * Se il periodo salvato esiste ancora
+                 * lo utilizziamo.
+                 *
+                 * Altrimenti manteniamo il comportamento
+                 * precedente e partiamo dal primo disponibile.
+                 */
+                setSelectedPeriod(
+                    savedPeriodObject ??
+                    builtPeriods[0] ??
+                    null
+                );
 
             } catch (err) {
 
-                setError(err);
+                setError(
+                    err
+                );
 
             } finally {
 
-                setIsLoading(false);
+                setIsLoading(
+                    false
+                );
 
             }
 
@@ -45,13 +92,44 @@ export function usePeriods() {
 
     }, []);
 
+
+    const handlePeriodChange =
+        period => {
+
+            setSelectedPeriod(
+                period
+            );
+
+
+            /*
+             * Salviamo solamente la chiave del periodo.
+             */
+            if (period?.key) {
+
+                localStorage.setItem(
+                    DASHBOARD_PERIOD_STORAGE_KEY,
+                    period.key
+                );
+
+            } else {
+
+                localStorage.removeItem(
+                    DASHBOARD_PERIOD_STORAGE_KEY
+                );
+
+            }
+
+        };
+
+
     return {
 
         periods,
 
         selectedPeriod,
 
-        setSelectedPeriod,
+        setSelectedPeriod:
+            handlePeriodChange,
 
         isLoading,
 

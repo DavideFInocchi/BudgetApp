@@ -12,11 +12,18 @@ import { BALANCE_TYPES } from "../../constants/balanceTypes";
 
 const DEFAULT_VALUES = {
 
-    transaction_date: formatSqlDate((new Date())),
+    transaction_date:
+        formatSqlDate(new Date()),
+
     description: "",
-    transaction_type: "Uscita",
+
+    transaction_type:
+        "Uscita",
+
     amount: "",
-    balance_type: "Ordinario",
+
+    balance_type:
+        "Ordinario",
 
 };
 
@@ -29,71 +36,142 @@ export default function TransactionForm({
 
 }) {
 
-    const { data: categories = [] } = useActiveCategories();
-    const defaultCategoryId = categories[0]?.id ?? "";
+    const {
+        data: categories = []
+    } = useActiveCategories();
+
+
+    const defaultCategoryId =
+        categories[0]?.id ?? "";
+
+
     const {
         register,
         control,
         handleSubmit,
         reset,
-        formState: { errors }
-    } = useForm({
-        defaultValues: {
-            ...DEFAULT_VALUES,
-            category_id: defaultCategoryId
+        formState: {
+            errors
         }
+    } = useForm({
+
+        defaultValues: {
+
+            ...DEFAULT_VALUES,
+
+            category_id:
+                defaultCategoryId
+
+        }
+
     });
-        useEffect(() => {
+
+
+    useEffect(() => {
 
         if (transaction) {
 
             reset({
 
-                transaction_date: transaction.transaction_date,
-                description: transaction.description,
-                transaction_type: transaction.transaction_type,
-                amount: transaction.amount,
-                balance_type: transaction.balance_type,
-                category_id: transaction.category_id
+                transaction_date:
+                    transaction.transaction_date,
+
+                description:
+                    transaction.description,
+
+                transaction_type:
+                    transaction.transaction_type,
+
+                amount:
+                    transaction.amount,
+
+                balance_type:
+                    transaction.balance_type,
+
+                category_id:
+                    transaction.category_id
 
             });
 
         } else {
 
+            /*
+             * Nuova transazione:
+             * quando le categorie sono finalmente
+             * disponibili, assegniamo la prima
+             * come categoria predefinita.
+             */
             reset({
+
                 ...DEFAULT_VALUES,
-                category_id: defaultCategoryId
+
+                category_id:
+                    defaultCategoryId
+
             });
 
         }
 
-    }, [transaction, reset]);
+    }, [
+        transaction,
+        reset,
+        defaultCategoryId
+    ]);
 
-    const categoryOptions = categories.map(category => ({
 
-        value: category.id,
-        label: category.name
+    const categoryOptions =
+        categories.map(
+            category => ({
 
-    }));
+                value:
+                    category.id,
+
+                label:
+                    category.name
+
+            })
+        );
+
 
     return (
 
         <form
-            onSubmit={handleSubmit((data) => {
 
-                const amount = Math.abs(Number(data.amount));
+            onSubmit={
+                handleSubmit(
+                    data => {
 
-                const normalizedData = {
-                    ...data,
-                    amount:
-                        data.transaction_type === "Uscita"
-                            ? -amount
-                            : amount
-                };
+                        const amount =
+                            Math.abs(
+                                Number(
+                                    data.amount
+                                )
+                            );
 
-                onSubmit(normalizedData);
 
-            })}
+                        const normalizedData = {
+
+                            ...data,
+
+                            amount:
+                                data.transaction_type ===
+                                "Uscita"
+
+                                    ? -amount
+
+                                    : amount
+
+                        };
+
+
+                        onSubmit(
+                            normalizedData
+                        );
+
+                    }
+                )
+            }
+
         >
 
             <div className="row g-3">
@@ -101,142 +179,268 @@ export default function TransactionForm({
                 <div className="col-md-6">
 
                     <AppInput
+
                         type="date"
+
                         label="Data"
-                        error={errors.transaction_date?.message}
-                        {...register("transaction_date", {
 
-                            required: "Campo obbligatorio"
+                        error={
+                            errors
+                                .transaction_date
+                                ?.message
+                        }
 
-                        })}
+                        {...register(
+                            "transaction_date",
+                            {
+                                required:
+                                    "Campo obbligatorio"
+                            }
+                        )}
+
                     />
 
                 </div>
+
 
                 <div className="col-md-6">
 
                     <AppInput
+
                         type="number"
+
                         step="0.01"
+
                         label="Importo"
-                        error={errors.amount?.message}
-                        {...register("amount", {
 
-                            required: "Campo obbligatorio",
-                            valueAsNumber: true,
-                            min: {
+                        error={
+                            errors
+                                .amount
+                                ?.message
+                        }
 
-                                value: 0.01,
-                                message: "Importo non valido"
+                        {...register(
+                            "amount",
+                            {
+
+                                required:
+                                    "Campo obbligatorio",
+
+                                valueAsNumber:
+                                    true,
+
+                                min: {
+
+                                    value:
+                                        0.01,
+
+                                    message:
+                                        "Importo non valido"
+
+                                }
 
                             }
+                        )}
 
-                        })}
                     />
 
                 </div>
+
 
                 <div className="col-12">
 
                     <AppInput
+
                         label="Descrizione"
-                        error={errors.description?.message}
-                        {...register("description", {
 
-                            required: "Campo obbligatorio"
+                        error={
+                            errors
+                                .description
+                                ?.message
+                        }
 
-                        })}
+                        {...register(
+                            "description",
+                            {
+
+                                required:
+                                    "Campo obbligatorio"
+
+                            }
+                        )}
+
                     />
 
                 </div>
+
 
                 <div className="col-md-6">
 
                     <Controller
+
                         name="category_id"
+
                         control={control}
+
                         rules={{
 
-                            required: "Seleziona una categoria"
+                            required:
+                                "Seleziona una categoria"
 
                         }}
-                        render={({ field }) => (
 
-                            <AppSelect
-                                label="Categoria"
-                                options={categoryOptions}
-                                value={field.value}
-                                onChange={field.onChange}
-                                error={errors.category_id?.message}
-                            />
+                        render={
+                            ({ field }) => (
 
-                        )}
-                    />
+                                <AppSelect
 
-                </div>
+                                    label="Categoria"
 
-                <div className="col-md-3">
-
-                    <Controller
-                        name="transaction_type"
-                        control={control}
-                        render={({ field }) => (
-
-                            <AppSelect
-                                label="Tipo"
-                                options={[
-                                    {
-                                        value: "Entrata",
-                                        label: "Entrata"
-                                    },
-                                    {
-                                        value: "Uscita",
-                                        label: "Uscita"
+                                    options={
+                                        categoryOptions
                                     }
-                                ]}
-                                value={field.value}
-                                onChange={field.onChange}
-                            />
 
-                        )}
+                                    value={
+                                        field.value
+                                    }
+
+                                    onChange={
+                                        field.onChange
+                                    }
+
+                                    error={
+                                        errors
+                                            .category_id
+                                            ?.message
+                                    }
+
+                                />
+
+                            )
+                        }
+
                     />
 
                 </div>
 
+
                 <div className="col-md-3">
 
                     <Controller
-                        name="balance_type"
+
+                        name="transaction_type"
+
                         control={control}
-                        render={({ field }) => (
 
-                        <AppSelect
-                            label="Saldo"
-                            options={BALANCE_TYPES}
-                            value={field.value}
-                            onChange={field.onChange}
-                        />
+                        render={
+                            ({ field }) => (
 
-                        )}
+                                <AppSelect
+
+                                    label="Tipo"
+
+                                    options={[
+                                        {
+                                            value:
+                                                "Entrata",
+
+                                            label:
+                                                "Entrata"
+                                        },
+                                        {
+                                            value:
+                                                "Uscita",
+
+                                            label:
+                                                "Uscita"
+                                        }
+                                    ]}
+
+                                    value={
+                                        field.value
+                                    }
+
+                                    onChange={
+                                        field.onChange
+                                    }
+
+                                />
+
+                            )
+                        }
+
+                    />
+
+                </div>
+
+
+                <div className="col-md-3">
+
+                    <Controller
+
+                        name="balance_type"
+
+                        control={control}
+
+                        render={
+                            ({ field }) => (
+
+                                <AppSelect
+
+                                    label="Saldo"
+
+                                    options={
+                                        BALANCE_TYPES
+                                    }
+
+                                    value={
+                                        field.value
+                                    }
+
+                                    onChange={
+                                        field.onChange
+                                    }
+
+                                />
+
+                            )
+                        }
+
                     />
 
                 </div>
 
             </div>
 
-            <div className="d-flex justify-content-end gap-2 mt-4">
+
+            <div
+                className=
+                    "d-flex justify-content-end gap-2 mt-4"
+            >
 
                 <AppButton
+
                     type="button"
+
                     variant="secondary"
-                    onClick={onCancel}
+
+                    onClick={
+                        onCancel
+                    }
+
                 >
                     Annulla
                 </AppButton>
 
+
                 <AppButton
+
                     type="submit"
-                    loading={loading}
+
+                    loading={
+                        loading
+                    }
+
                 >
                     Salva
                 </AppButton>

@@ -25,6 +25,10 @@ export default function TransactionModal({
 
     const handleSubmit = async (data) => {
 
+        if (create.isPending || update.isPending) {
+            return;
+        }
+
         const isEdit = !!transaction;
 
         const toastId = toastService.loading(

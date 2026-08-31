@@ -61,10 +61,42 @@ export async function updateCategory(id, category) {
 }
 
 export async function deleteCategory(id) {
-  const { error } = await supabase
-    .from("categories")
-    .delete()
-    .eq("id", id);
 
-  if (error) throw error;
+    const { error } = await supabase
+
+        .from("categories")
+
+        .delete()
+
+        .eq("id", id);
+
+
+    if (error) {
+
+        /*
+         * Categoria ancora utilizzata da una o più
+         * transazioni.
+         *
+         * Il vincolo FK del database impedisce
+         * correttamente la cancellazione.
+         */
+        if (
+            error.code === "23503" ||
+            error.message?.includes(
+                "fk_transaction_category"
+            )
+        ) {
+
+            throw new Error(
+                "Impossibile eliminare la categoria: " +
+                "è ancora utilizzata da una o più transazioni."
+            );
+
+        }
+
+
+        throw error;
+
+    }
+
 }
