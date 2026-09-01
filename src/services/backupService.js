@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 
 const BACKUP_VERSION = 1;
+const PAGE_SIZE = 1000;
 const BACKUP_TABLES = [
     "categories",
     "transactions",
@@ -27,15 +28,31 @@ function downloadJson(filename, payload) {
 }
 
 async function readTable(table) {
-    const { data, error } = await supabase
-        .from(table)
-        .select("*");
+    const rows = [];
+    let from = 0;
 
-    if (error) {
-        throw new Error(`Errore lettura ${table}: ${error.message}`);
+    while (true) {
+        const to = from + PAGE_SIZE - 1;
+        const { data, error } = await supabase
+            .from(table)
+            .select("*")
+            .range(from, to);
+
+        if (error) {
+            throw new Error(`Errore lettura ${table}: ${error.message}`);
+        }
+
+        const page = data ?? [];
+        rows.push(...page);
+
+        if (page.length < PAGE_SIZE) {
+            break;
+        }
+
+        from += PAGE_SIZE;
     }
 
-    return data ?? [];
+    return rows;
 }
 
 export async function createBackup() {
@@ -95,7 +112,7 @@ export async function restoreBackup(backup) {
 }
 
 export async function parseBackupFile(file) {
-    if (!file || file.type !== "application/json" && !file.name.toLowerCase().endsWith(".json")) {
+    if (!file || (file.type !== "application/json" && !file.name.toLowerCase().endsWith(".json"))) {
         throw new Error("Seleziona un file JSON di backup.");
     }
 
