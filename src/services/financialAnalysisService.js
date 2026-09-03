@@ -80,7 +80,25 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/ombrellone giornaliero|stabilimento/.test(normalizedDescription)) {
+    // Un ombrellone di importo elevato viene trattato come spesa programmata;
+    // le normali spese balneari di importo contenuto restano occasionali.
+    if (/ombrellone/.test(normalizedDescription)) {
+        if (Math.abs(amount) >= 100) {
+            return {
+                ...transaction,
+                financialType: "PROGRAMMATO",
+                classificationReason: "spesa programmata di importo elevato",
+            };
+        }
+
+        return {
+            ...transaction,
+            financialType: "OCCASIONALE",
+            classificationReason: "spesa occasionale per svago",
+        };
+    }
+
+    if (/stabilimento/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "OCCASIONALE",
