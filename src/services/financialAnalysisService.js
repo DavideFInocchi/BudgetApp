@@ -237,7 +237,9 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/cena|pranzo|pizza|colazione|caffè|caffe/.test(normalizedDescription)) {
+    // I consumi di svago abituali sono ricorrenti nel comportamento,
+    // ma irregolari nell'importo e nella frequenza mensile.
+    if (/cena|pranzo|pizza|colazione|caffè|caffe|bar|gelateria|gelato|asporto|sushi/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE_IRREGOLARE",
