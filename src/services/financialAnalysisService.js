@@ -106,6 +106,16 @@ function classifyTransaction(transaction) {
         };
     }
 
+    // Amazon Prime è un abbonamento ricorrente e deve essere valutato
+    // prima della regola generica Amazon.
+    if (/amazon prime/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE",
+            classificationReason: "abbonamento ricorrente",
+        };
+    }
+
     if (/regalo|anello|pensione luigi|argeste club vacanze|zoo|noleggio sci|jhon cena|amazon|temu|brico|ikea|spettacolo pampers/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -162,15 +172,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Gli abbonamenti devono essere valutati prima della regola generica Amazon.
-    if (/amazon prime/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE",
-            classificationReason: "abbonamento ricorrente",
-        };
-    }
-
     if (/prime|crunchyroll|crunchy roll|chruncy roll|crucnhyroll|discovery|dplay|chatgpt|openai|vpn|mullvad vpn|3 mesi abbonamento/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -218,115 +219,3 @@ function classifyTransaction(transaction) {
             classificationReason: "acquisto domestico strutturale",
         };
     }
-
-    if (/ford|lancia/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE",
-            classificationReason: "spesa auto ricorrente",
-        };
-    }
-
-    if (/cena|pranzo|pizza|colazione|caffè|caffe/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE_IRREGOLARE",
-            classificationReason: "spesa di consumo ricorrente irregolare",
-        };
-    }
-
-    if (/primigi outlet|scarpe zalando|zalando|maglia|mutande|scarpe diem/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE_IRREGOLARE",
-            classificationReason: "abbigliamento ricorrente irregolare",
-        };
-    }
-
-    if (/ritiro sportello/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE_IRREGOLARE",
-            classificationReason: "prelievo ricorrente irregolare",
-        };
-    }
-
-    if (/pezzotto/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE",
-            classificationReason: "servizio ricorrente",
-        };
-    }
-
-    return {
-        ...transaction,
-        financialType: "DA_CLASSIFICARE",
-        classificationReason: "nessuna regola applicabile",
-    };
-}
-
-/**
- * Aggrega le transazioni per mese.
- *
- * @param {Array<Object>} transactions
- * @returns {Object}
- */
-function buildHistoricalMonthlyCashFlow(transactions) {
-    const months = new Map();
-
-    transactions.forEach(transaction => {
-        const date = transaction.transaction_date;
-        const month = date.slice(0, 7);
-        const amount = Number(transaction.amount);
-
-        if (!months.has(month)) {
-            months.set(month, {
-                month,
-                income: 0,
-                expenses: 0,
-                investments: 0,
-                cashFlowPrePac: 0,
-                cashFlowPostPac: 0,
-                transactionsCount: 0,
-            });
-        }
-
-        const summary = months.get(month);
-        summary.transactionsCount += 1;
-
-        if (amount > 0) {
-            summary.income += amount;
-            return;
-        }
-
-        if (amount < 0) {
-            const expense = Math.abs(amount);
-
-            if (Number(transaction.category_id) === 8) {
-                summary.investments += expense;
-            } else {
-                summary.expenses += expense;
-            }
-        }
-    });
-
-    const monthly = [...months.values()]
-        .sort((a, b) => a.month.localeCompare(b.month))
-        .map(summary => ({
-            ...summary,
-            cashFlowPrePac: summary.income - summary.expenses,
-            cashFlowPostPac:
-                summary.income - summary.expenses - summary.investments,
-        }));
-
-    return {
-        from: monthly[0]?.month ?? null,
-        to: monthly.at(-1)?.month ?? null,
-        monthly,
-    };
-}
-
-export default {
-    getHistoricalFinancialAnalysis,
-};
