@@ -64,7 +64,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/condizionatore|asciugatrice|mova mobius|materasso rata|telefono rata/.test(normalizedDescription)) {
+    if (/condizionatore|asciugatrice|mova mobius|materasso rata|telefono rata|ombrellone/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "PROGRAMMATO",
@@ -80,7 +80,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/regalo|anello/.test(normalizedDescription)) {
+    if (/regalo|anello|mare|stabilimento/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "OCCASIONALE",
@@ -104,7 +104,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/pieno|benzina|metano|rifornimento/.test(normalizedDescription)) {
+    if (/pieno|benzina|metano|rifornimento|refuel/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE",
@@ -120,7 +120,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/rca|assicurazione/.test(normalizedDescription)) {
+    if (/\brca\b/.test(normalizedDescription) || /assicurazione/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE",
@@ -133,6 +133,86 @@ function classifyTransaction(transaction) {
             ...transaction,
             financialType: "STRUTTURALE",
             classificationReason: "utenza/spesa domestica strutturale",
+        };
+    }
+
+    if (/prime|crunchyroll|crunchy roll|discovery|chatgpt|openai|3 mesi abbonamento/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE",
+            classificationReason: "abbonamento ricorrente",
+        };
+    }
+
+    if (/palestra|barbiere/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE",
+            classificationReason: "servizio ricorrente",
+        };
+    }
+
+    if (/farmacia|parafarmacia|allergologo|pneumologo|osteopata|fisioterapia/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "spesa sanitaria ricorrente irregolare",
+        };
+    }
+
+    if (/condominio/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "spesa condominiale ricorrente irregolare",
+        };
+    }
+
+    if (/pannolini|mangiapannolini|tigota/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "STRUTTURALE",
+            classificationReason: "spesa domestica strutturale",
+        };
+    }
+
+    if (/\baction\b/.test(normalizedDescription) && category === "casa") {
+        return {
+            ...transaction,
+            financialType: "STRUTTURALE",
+            classificationReason: "acquisto domestico strutturale",
+        };
+    }
+
+    if (/ford|lancia/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE",
+            classificationReason: "spesa auto ricorrente",
+        };
+    }
+
+    if (/lucia|lucia mazzone/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE",
+            classificationReason: "pulizia casa ricorrente",
+        };
+    }
+
+    if (/\bcloe\b|completo cloe|vestiti/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "spesa personale/abbigliamento ricorrente irregolare",
+        };
+    }
+
+    if (/acquisto casa|acquisti casa/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "acquisto domestico ricorrente irregolare",
         };
     }
 
