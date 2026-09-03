@@ -64,7 +64,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/condizionatore|asciugatrice|mova mobius|materasso rata|telefono rata|ombrellone/.test(normalizedDescription)) {
+    if (/condizionatore|asciugatrice|mova mobius|materasso rata|telefono rata/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "PROGRAMMATO",
@@ -72,7 +72,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/battesimo|compleanno/.test(normalizedDescription)) {
+    if (/battesimo|compleanno|rosa compleanno/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "PREVEDIBILE",
@@ -80,7 +80,15 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/regalo|anello|mare|stabilimento/.test(normalizedDescription)) {
+    if (/ombrellone giornaliero|mare|stabilimento/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "OCCASIONALE",
+            classificationReason: "spesa occasionale per svago",
+        };
+    }
+
+    if (/regalo|anello|pensione luigi|argeste club vacanze|zoo|noleggio sci|jhon cena|amazon|temu|brico|ikea|spettacolo pampers/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "OCCASIONALE",
@@ -88,11 +96,11 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/freni|tagliando|revisione|manutenzione auto/.test(normalizedDescription)) {
+    if (/freni|tagliando|revisione|manutenzione auto|scalo due autoricambi|pezza ruota|maccina daniels|manutenzione caldaia/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE_IRREGOLARE",
-            classificationReason: "manutenzione auto ricorrente irregolare",
+            classificationReason: "manutenzione/spesa tecnica ricorrente irregolare",
         };
     }
 
@@ -104,11 +112,11 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/pieno|benzina|metano|rifornimento|refuel/.test(normalizedDescription)) {
+    if (/pieno|benzina|metano|rifornimento|refuel|\beni\b|\blacnia\b|\blancia\b/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE",
-            classificationReason: "carburante ricorrente",
+            classificationReason: "spesa auto/carburante ricorrente",
         };
     }
 
@@ -120,7 +128,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/\brca\b/.test(normalizedDescription) || /assicurazione/.test(normalizedDescription)) {
+    if (/\brca\b|assicurazione|polizza/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE",
@@ -136,7 +144,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/prime|crunchyroll|crunchy roll|discovery|chatgpt|openai|3 mesi abbonamento/.test(normalizedDescription)) {
+    if (/prime|crunchyroll|crunchy roll|chruncy roll|crucnhyroll|discovery|dplay|chatgpt|openai|vpn|mullvad vpn|3 mesi abbonamento/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE",
@@ -152,7 +160,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/farmacia|parafarmacia|allergologo|pneumologo|osteopata|fisioterapia/.test(normalizedDescription)) {
+    if (/farmacia|farmaci|farmcia|parafarmacia|ryaltris|spray davide|analisi|cardiologo|certificato e holter|monitoraggio notturno|lenti daniela|casa di cura|allergologo|pneumologo|osteopata|fisioterapia|visita cloe/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE_IRREGOLARE",
@@ -163,12 +171,12 @@ function classifyTransaction(transaction) {
     if (/condominio/.test(normalizedDescription)) {
         return {
             ...transaction,
-            financialType: "RICORRENTE_IRREGOLARE",
-            classificationReason: "spesa condominiale ricorrente irregolare",
+            financialType: "STRUTTURALE",
+            classificationReason: "spesa condominiale strutturale",
         };
     }
 
-    if (/pannolini|mangiapannolini|tigota/.test(normalizedDescription)) {
+    if (/pannolini|mangiapannolini|tigota|babylinoshop|detergente robot|capsule lavastoviglie|sacchetti robot|shampoo/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "STRUTTURALE",
@@ -192,35 +200,35 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/lucia|lucia mazzone/.test(normalizedDescription)) {
+    if (/cena|pranzo|pizza|colazione|caffè|caffe/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "spesa di consumo ricorrente irregolare",
+        };
+    }
+
+    if (/primigi outlet|scarpe zalando|zalando|maglia|mutande|scarpe diem/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "abbigliamento ricorrente irregolare",
+        };
+    }
+
+    if (/ritiro sportello/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "prelievo ricorrente irregolare",
+        };
+    }
+
+    if (/pezzotto/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "RICORRENTE",
-            classificationReason: "pulizia casa ricorrente",
-        };
-    }
-
-    if (/\bcloe\b|completo cloe|vestiti/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE_IRREGOLARE",
-            classificationReason: "spesa personale/abbigliamento ricorrente irregolare",
-        };
-    }
-
-    if (/acquisto casa|acquisti casa/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "RICORRENTE_IRREGOLARE",
-            classificationReason: "acquisto domestico ricorrente irregolare",
-        };
-    }
-
-    if (category === "alimentari") {
-        return {
-            ...transaction,
-            financialType: "STRUTTURALE",
-            classificationReason: "categoria alimentari strutturale",
+            classificationReason: "servizio ricorrente",
         };
     }
 
