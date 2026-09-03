@@ -80,7 +80,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/ombrellone giornaliero|mare|stabilimento/.test(normalizedDescription)) {
+    if (/ombrellone giornaliero|stabilimento/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "OCCASIONALE",
@@ -141,6 +141,15 @@ function classifyTransaction(transaction) {
             ...transaction,
             financialType: "STRUTTURALE",
             classificationReason: "utenza/spesa domestica strutturale",
+        };
+    }
+
+    // Gli abbonamenti devono essere valutati prima della regola generica Amazon.
+    if (/amazon prime/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE",
+            classificationReason: "abbonamento ricorrente",
         };
     }
 
