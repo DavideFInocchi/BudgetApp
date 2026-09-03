@@ -8,6 +8,8 @@ import Settings from "./pages/Settings";
 import TransactionsPage from "./pages/Transactions/TransactionsPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import BudgetPage from "./pages/Budget/BudgetPage";
+import FinancialAnalysisPage from "./pages/FinancialAnalysis/FinancialAnalysisPage";
+
 export default function Router() {
 
     return (
@@ -43,6 +45,11 @@ export default function Router() {
                     <Route
                         path="/settings"
                         element={<Settings />}
+                    />
+
+                    <Route
+                        path="/financial-analysis"
+                        element={<FinancialAnalysisPage />}
                     />
 
                 </Route>
