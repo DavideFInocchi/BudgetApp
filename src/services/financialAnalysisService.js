@@ -80,6 +80,16 @@ function classifyTransaction(transaction) {
         };
     }
 
+    // Spese collegate al compleanno di Cloe: restano PREVEDIBILI anche
+    // quando la descrizione non contiene esplicitamente la parola compleanno.
+    if (/spumante|torta|no latte/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "PREVEDIBILE",
+            classificationReason: "spesa collegata a evento prevedibile (compleanno Cloe)",
+        };
+    }
+
     // Un ombrellone di importo elevato viene trattato come spesa programmata;
     // le normali spese balneari di importo contenuto restano occasionali.
     if (/ombrellone/.test(normalizedDescription)) {
