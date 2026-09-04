@@ -34,10 +34,11 @@ export async function getHistoricalFinancialAnalysis({ from, to }) {
  * Classifica una transazione esclusivamente in memoria.
  *
  * Priorita delle regole:
- * 1. descrizione specifica
- * 2. pattern nella descrizione
- * 3. categoria
- * 4. DA_CLASSIFICARE
+ * 1. investimenti
+ * 2. descrizione specifica
+ * 3. pattern nella descrizione
+ * 4. categoria
+ * 5. DA_CLASSIFICARE
  *
  * @param {Object} transaction
  * @returns {Object}
@@ -47,6 +48,16 @@ function classifyTransaction(transaction) {
     const normalizedDescription = description.toLowerCase();
     const category = String(transaction.category_name ?? "").trim().toLowerCase();
     const amount = Number(transaction.amount);
+
+    // Gli investimenti sono un flusso finanziario distinto dalle spese.
+    // Non devono essere forzati in uno dei tipi di spesa familiare.
+    if (Number(transaction.category_id) === 8 && amount < 0) {
+        return {
+            ...transaction,
+            financialType: "INVESTIMENTO",
+            classificationReason: "movimento di investimento",
+        };
+    }
 
     if (amount >= 0) {
         return {
