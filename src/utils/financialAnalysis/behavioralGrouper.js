@@ -272,12 +272,18 @@ function monthSimilarity(leftMonths, rightMonths) {
 function monthComplementarity(leftMonths, rightMonths) {
     if (!leftMonths.size || !rightMonths.size) return 0;
 
-    const overlap = [...leftMonths].filter(month => rightMonths.has(month)).length;
-    if (overlap > 0) return 0;
+    const [anchorMonths, variantMonths] = leftMonths.size >= rightMonths.size
+        ? [leftMonths, rightMonths]
+        : [rightMonths, leftMonths];
 
-    const smaller = Math.min(leftMonths.size, rightMonths.size);
-    const larger = Math.max(leftMonths.size, rightMonths.size);
-    return smaller / larger;
+    const missingAnchorMonths = ANALYSIS_MONTH_COUNT - anchorMonths.size;
+    if (missingAnchorMonths <= 0) return 0;
+
+    const variantMonthsInAnchorGaps = [...variantMonths]
+        .filter(month => !anchorMonths.has(month))
+        .length;
+
+    return Math.min(1, variantMonthsInAnchorGaps / missingAnchorMonths);
 }
 
 function coefficientOfVariation(values) {
@@ -332,6 +338,8 @@ function calculateReviewConfidence(evidence) {
 
     return Math.min(score, 0.95);
 }
+
+const ANALYSIS_MONTH_COUNT = 12;
 
 const STRONG_SEMANTIC_TOKENS = new Set([
     "mutuo",
