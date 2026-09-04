@@ -1,4 +1,5 @@
 import normalizeMerchant from "./merchantNormalizer";
+import normalizeMerchantContext from "./merchantContextNormalizer";
 import { buildMerchantClusters, getMerchantCluster } from "./merchantClusterer";
 
 /**
@@ -22,12 +23,14 @@ export function extractFinancialFeatures(transactions = []) {
         const absoluteAmount = Math.abs(amount);
         const date = String(transaction.transaction_date ?? "");
         const merchant = normalizeMerchant(transaction.description);
+        const merchantContext = normalizeMerchantContext(merchant);
         const stats = merchantStats.get(merchant) ?? emptyMerchantStats();
         const cluster = getMerchantCluster(merchantClusters, merchant);
 
         return {
             transactionId: transaction.id,
             merchant,
+            merchantContext,
             merchantClusterId: cluster.clusterId,
             merchantClusterConfidence: cluster.clusterConfidence,
             merchantClusterMembers: cluster.clusterMerchants,
