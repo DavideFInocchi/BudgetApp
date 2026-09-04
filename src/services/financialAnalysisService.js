@@ -144,6 +144,15 @@ function classifyTransaction(transaction) {
         };
     }
 
+    // La pulizia della casa settimanale è una spesa strutturale della famiglia.
+    if (/lucia|lucia mazzone/.test(normalizedDescription) && category === "casa") {
+        return {
+            ...transaction,
+            financialType: "STRUTTURALE",
+            classificationReason: "pulizia della casa ricorrente strutturale",
+        };
+    }
+
     if (/regalo|anello|pensione luigi|argeste club vacanze|zoo|noleggio sci|jhon cena|amazon|temu|brico|ikea|spettacolo pampers/.test(normalizedDescription)) {
         return {
             ...transaction,
