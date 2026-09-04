@@ -153,12 +153,12 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Acquisti espliciti per Cloe: beni identificabili e non semplici
-    // descrizioni generiche (es. "Cloe" o "Varie Cloe").
+    // Acquisti espliciti per Cloe di beni/attrezzatura: sono programmabili.
+    // Restano escluse le descrizioni generiche o relative a consumabili.
     if (
         /cloe/.test(normalizedDescription) &&
         !/\bvarie cloe\b|\blatte ?cloe\b|\bcloe lavaggi\b|\b\bcloe\b$/.test(normalizedDescription) &&
-        /molle|vestiti|scarpe|pepco|lettino|letto|marsupio|bagnetto|monitor|completo|tappeto|universo|ovs|action|crema|balsamo|sponde|barriere/.test(normalizedDescription)
+        /molle|lettino|letto|marsupio|bagnetto|monitor|tappeto|sponde|barriere/.test(normalizedDescription)
     ) {
         return {
             ...transaction,
