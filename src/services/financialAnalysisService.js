@@ -241,7 +241,7 @@ function classifyTransaction(transaction) {
     }
 
     // I normali acquisti alimentari/supermercato sono spese strutturali.
-    if (/\bmd\b|conad|eurospin|lidl|carrefour|supermercato|supermarket|macelleria|alimentari|cona market/.test(normalizedDescription)) {
+    if (/\bmd\b|conad|eurospin|lidl|carrefour|supermercato|supermarket|macelleria|alimentari|cona market|maxi tigre/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "STRUTTURALE",
