@@ -281,6 +281,15 @@ function classifyTransaction(transaction) {
         };
     }
 
+    // Enoteca è consumo alimentare/bevanda ricorrente ma irregolare.
+    if (/enoteca/.test(normalizedDescription) && category === "svago") {
+        return {
+            ...transaction,
+            financialType: "RICORRENTE_IRREGOLARE",
+            classificationReason: "consumo ricorrente irregolare",
+        };
+    }
+
     if (/cena|pranzo|pizza|colazione|caffè|caffe|bar|gelateria|gelato|asporto|sushi/.test(normalizedDescription)) {
         return {
             ...transaction,
