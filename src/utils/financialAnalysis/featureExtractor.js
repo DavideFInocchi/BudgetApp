@@ -13,7 +13,6 @@ import normalizeMerchant from "./merchantNormalizer";
  */
 export function extractFinancialFeatures(transactions = []) {
     const rows = Array.isArray(transactions) ? transactions : [];
-
     const merchantStats = buildMerchantStats(rows);
 
     return rows.map(transaction => {
@@ -58,9 +57,15 @@ function buildMerchantStats(transactions) {
         const current = stats.get(merchant) ?? emptyMerchantStats();
 
         current.occurrenceCount += 1;
-        current.totalAmount += Number.isFinite(amount) ? amount : 0;
-        current.minAmount = Math.min(current.minAmount, amount);
-        current.maxAmount = Math.max(current.maxAmount, amount);
+        if (Number.isFinite(amount)) {
+            current.totalAmount += amount;
+            current.minAmount = current.minAmount === null
+                ? amount
+                : Math.min(current.minAmount, amount);
+            current.maxAmount = current.maxAmount === null
+                ? amount
+                : Math.max(current.maxAmount, amount);
+        }
         if (month) current.months.add(month);
 
         stats.set(merchant, current);
@@ -71,6 +76,8 @@ function buildMerchantStats(transactions) {
         value.averageAmount = value.occurrenceCount
             ? value.totalAmount / value.occurrenceCount
             : 0;
+        value.minAmount = value.minAmount ?? 0;
+        value.maxAmount = value.maxAmount ?? 0;
         delete value.months;
         delete value.totalAmount;
     });
@@ -84,8 +91,9 @@ function emptyMerchantStats() {
         monthCount: 0,
         totalAmount: 0,
         averageAmount: 0,
-        minAmount: 0,
-        maxAmount: 0,
+        minAmount: null,
+        maxAmount: null,
+        totalAmount: 0,
         months: new Set(),
     };
 }
