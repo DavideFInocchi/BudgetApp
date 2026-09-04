@@ -72,7 +72,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/battesimo|compleanno|rosa compleanno/.test(normalizedDescription)) {
+    if (/battesimo|compleanno|rosa compleaano|rosa compleanno/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "PREVEDIBILE",
