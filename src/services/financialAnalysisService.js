@@ -126,6 +126,16 @@ function classifyTransaction(transaction) {
         };
     }
 
+    // Gli acquisti domestici specifici hanno priorita rispetto ai merchant
+    // generici (es. Amazon), per evitare che vengano classificati come occasionali.
+    if (/pannolini|mangiapannolini|tigota|babylinoshop|detergente robot|capsule lavastoviglie|sacchetti robot|shampoo/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "STRUTTURALE",
+            classificationReason: "spesa domestica strutturale",
+        };
+    }
+
     if (/regalo|anello|pensione luigi|argeste club vacanze|zoo|noleggio sci|jhon cena|amazon|temu|brico|ikea|spettacolo pampers/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -211,14 +221,6 @@ function classifyTransaction(transaction) {
             ...transaction,
             financialType: "STRUTTURALE",
             classificationReason: "spesa condominiale strutturale",
-        };
-    }
-
-    if (/pannolini|mangiapannolini|tigota|babylinoshop|detergente robot|capsule lavastoviglie|sacchetti robot|shampoo/.test(normalizedDescription)) {
-        return {
-            ...transaction,
-            financialType: "STRUTTURALE",
-            classificationReason: "spesa domestica strutturale",
         };
     }
 
