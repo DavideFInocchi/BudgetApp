@@ -153,12 +153,12 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Acquisti espliciti per Cloe di beni/attrezzatura: sono programmabili.
-    // Restano escluse le descrizioni generiche o relative a consumabili.
+    // Acquisti espliciti per Cloe nelle categorie Casa/Vestiti.
+    // Le spese sanitarie, alimentari e le descrizioni generiche restano escluse.
     if (
         /cloe/.test(normalizedDescription) &&
-        !/\bvarie cloe\b|\blatte ?cloe\b|\bcloe lavaggi\b|\b\bcloe\b$/.test(normalizedDescription) &&
-        /molle|lettino|letto|marsupio|bagnetto|monitor|tappeto|sponde|barriere/.test(normalizedDescription)
+        (category === "casa" || category === "vestiti") &&
+        !/\bvarie cloe\b|\blatte ?cloe\b|\bcloe lavaggi\b|^cloe$/.test(normalizedDescription)
     ) {
         return {
             ...transaction,
