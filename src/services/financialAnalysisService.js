@@ -153,6 +153,20 @@ function classifyTransaction(transaction) {
         };
     }
 
+    // Acquisti espliciti per Cloe: beni identificabili e non semplici
+    // descrizioni generiche (es. "Cloe" o "Varie Cloe").
+    if (
+        /cloe/.test(normalizedDescription) &&
+        !/\bvarie cloe\b|\blatte ?cloe\b|\bcloe lavaggi\b|\b\bcloe\b$/.test(normalizedDescription) &&
+        /molle|vestiti|scarpe|pepco|lettino|letto|marsupio|bagnetto|monitor|completo|tappeto|universo|ovs|action|crema|balsamo|sponde|barriere/.test(normalizedDescription)
+    ) {
+        return {
+            ...transaction,
+            financialType: "PROGRAMMATO",
+            classificationReason: "acquisto esplicito per Cloe",
+        };
+    }
+
     if (/regalo|anello|pensione luigi|argeste club vacanze|zoo|noleggio sci|jhon cena|amazon|temu|brico|ikea|spettacolo pampers/.test(normalizedDescription)) {
         return {
             ...transaction,
