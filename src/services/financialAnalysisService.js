@@ -30,27 +30,12 @@ export async function getHistoricalFinancialAnalysis({ from, to }) {
     };
 }
 
-/**
- * Classifica una transazione esclusivamente in memoria.
- *
- * Priorita delle regole:
- * 1. investimenti
- * 2. descrizione specifica
- * 3. pattern nella descrizione
- * 4. categoria
- * 5. DA_CLASSIFICARE
- *
- * @param {Object} transaction
- * @returns {Object}
- */
 function classifyTransaction(transaction) {
     const description = String(transaction.description ?? "").trim();
     const normalizedDescription = description.toLowerCase();
     const category = String(transaction.category_name ?? "").trim().toLowerCase();
     const amount = Number(transaction.amount);
 
-    // Gli investimenti sono un flusso finanziario distinto dalle spese.
-    // Non devono essere forzati in uno dei tipi di spesa familiare.
     if (Number(transaction.category_id) === 8 && amount < 0) {
         return {
             ...transaction,
@@ -91,8 +76,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Spese collegate al compleanno di Cloe: restano PREVEDIBILI anche
-    // quando la descrizione non contiene esplicitamente la parola compleanno.
     if (/spumante|torta|no latte/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -101,8 +84,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Un ombrellone di importo elevato viene trattato come spesa programmata;
-    // le normali spese balneari di importo contenuto restano occasionali.
     if (/ombrellone/.test(normalizedDescription)) {
         if (Math.abs(amount) >= 100) {
             return {
@@ -135,8 +116,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Amazon Prime è un abbonamento ricorrente e deve essere valutato
-    // prima della regola generica Amazon.
     if (/amazon prime/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -145,8 +124,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Gli acquisti domestici specifici hanno priorita rispetto ai merchant
-    // generici (es. Amazon), per evitare che vengano classificati come occasionali.
     if (/pannolini|mangiapannolini|tigota|babylinoshop|detergente robot|capsule lavastoviglie|sacchetti robot|shampoo/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -155,7 +132,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // La pulizia della casa settimanale è una spesa strutturale della famiglia.
     if (/lucia|lucia mazzone/.test(normalizedDescription) && category === "casa") {
         return {
             ...transaction,
@@ -164,8 +140,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // Acquisti espliciti per Cloe nelle categorie Casa/Vestiti.
-    // Le spese sanitarie, alimentari e le descrizioni generiche restano escluse.
     if (
         /cloe/.test(normalizedDescription) &&
         (category === "casa" || category === "vestiti") &&
@@ -274,7 +248,15 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // I normali acquisti alimentari/supermercato sono spese strutturali.
+    // Latte Cloe è un consumo alimentare ricorrente della famiglia.
+    if (/\blatte ?cloe\b/.test(normalizedDescription) && category === "alimentari") {
+        return {
+            ...transaction,
+            financialType: "STRUTTURALE",
+            classificationReason: "consumo alimentare ricorrente strutturale",
+        };
+    }
+
     if (/\bmd\b|conad|eurospin|lidl|carrefour|supermercato|supermarket|macelleria|alimentari|cona market|maxi tigre/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -291,8 +273,6 @@ function classifyTransaction(transaction) {
         };
     }
 
-    // I consumi di svago abituali sono ricorrenti nel comportamento,
-    // ma irregolari nell'importo e nella frequenza mensile.
     if (/cena|pranzo|pizza|colazione|caffè|caffe|bar|gelateria|gelato|asporto|sushi/.test(normalizedDescription)) {
         return {
             ...transaction,
@@ -332,12 +312,6 @@ function classifyTransaction(transaction) {
     };
 }
 
-/**
- * Aggrega le transazioni per mese.
- *
- * @param {Array<Object>} transactions
- * @returns {Object}
- */
 function buildHistoricalMonthlyCashFlow(transactions) {
     const months = new Map();
 
