@@ -56,7 +56,7 @@ function classifyTransaction(transaction) {
         };
     }
 
-    if (/mutuo|rata mutuo|prestito cucina|rata cucina/.test(normalizedDescription)) {
+    if (/mutuo|rata mutuo|prestito cucina|rata cucina|rata mutu|^cucina$/.test(normalizedDescription)) {
         return {
             ...transaction,
             financialType: "STRUTTURALE",
