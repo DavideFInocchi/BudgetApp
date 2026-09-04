@@ -233,7 +233,11 @@ function union(parent, left, right, profiles) {
     const leftCount = leftProfile?.occurrenceCount ?? 0;
     const rightCount = rightProfile?.occurrenceCount ?? 0;
 
-    parent.set(rightRoot, leftCount >= rightCount ? leftRoot : rightRoot);
+    if (leftCount >= rightCount) {
+        parent.set(rightRoot, leftRoot);
+    } else {
+        parent.set(leftRoot, rightRoot);
+    }
 }
 
 function find(parent, merchant) {
