@@ -143,7 +143,7 @@ function classifyTransaction(transaction) {
     if (
         /cloe/.test(normalizedDescription) &&
         (category === "casa" || category === "vestiti") &&
-        !/\bvarie cloe\b|\blatte ?cloe\b|\bcloe lavaggi\b|^cloe$/.test(normalizedDescription)
+        !/\bvarie cloe\b|\blatte ?cloe\b|\bcloe lavaggi\b/.test(normalizedDescription)
     ) {
         return {
             ...transaction,
