@@ -160,6 +160,14 @@ function classifyTransaction(transaction) {
         };
     }
 
+    if (/booking\.com|bkg\*booking\.com/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "OCCASIONALE",
+            classificationReason: "spesa occasionale per soggiorno",
+        };
+    }
+
     if (/freni|tagliando|revisione|manutenzione auto|scalo due autoricambi|pezza ruota|maccina daniels|manutenzione caldaia/.test(normalizedDescription)) {
         return {
             ...transaction,
