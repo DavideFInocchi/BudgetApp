@@ -1,4 +1,5 @@
 import normalizeMerchant from "./merchantNormalizer";
+import normalizeMerchantContext from "./merchantContextNormalizer";
 
 /**
  * Raggruppa merchant storicamente simili senza modificare la descrizione originale.
@@ -6,8 +7,7 @@ import normalizeMerchant from "./merchantNormalizer";
  * Il clustering e' volutamente conservativo:
  * - la categoria deve essere compatibile quando entrambe sono disponibili;
  * - la similarita' testuale da sola non basta per i nomi corti o generici;
- * - token accessori (localita', suffissi societari e rumore tecnico) vengono
- *   esclusi dal confronto, ma restano nel merchant normalizzato originale;
+ * - il confronto usa una seconda normalizzazione per rimuovere il boilerplate bancario;
  * - ogni cluster conserva un confidence score e il merchant rappresentativo.
  */
 export function buildMerchantClusters(transactions = []) {
@@ -85,6 +85,7 @@ function buildMerchantProfiles(transactions) {
 
         const current = profiles.get(merchant) ?? {
             merchant,
+            contextMerchant: normalizeMerchantContext(merchant),
             categoryIds: new Set(),
             occurrenceCount: 0,
         };
@@ -104,8 +105,12 @@ function getClusterConfidence(left, right) {
     if (!areCategoriesCompatible(left, right)) return 0;
     if (left.merchant === right.merchant) return 1;
 
-    const leftTokens = tokenize(left.merchant);
-    const rightTokens = tokenize(right.merchant);
+    const leftValue = left.contextMerchant || left.merchant;
+    const rightValue = right.contextMerchant || right.merchant;
+    if (leftValue === rightValue) return 0.97;
+
+    const leftTokens = tokenize(leftValue);
+    const rightTokens = tokenize(rightValue);
     const leftCoreTokens = getCoreTokens(leftTokens);
     const rightCoreTokens = getCoreTokens(rightTokens);
 
@@ -117,9 +122,9 @@ function getClusterConfidence(left, right) {
         return 0;
     }
 
-    const editSimilarity = normalizedLevenshtein(left.merchant, right.merchant);
+    const editSimilarity = normalizedLevenshtein(leftValue, rightValue);
     const tokenSimilarity = tokenSimilarityScore(leftCoreTokens, rightCoreTokens);
-    const prefixSimilarity = prefixScore(left.merchant, right.merchant);
+    const prefixSimilarity = prefixScore(leftValue, rightValue);
 
     return Math.max(
         editSimilarity * 0.65 + tokenSimilarity * 0.35,
@@ -283,7 +288,6 @@ const ACCESSORY_TOKENS = new Set([
     "snc",
     "sas",
     "sapa",
-    "gmbh",
     "ltd",
     "llc",
     "inc",
