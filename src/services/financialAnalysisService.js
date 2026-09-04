@@ -116,6 +116,14 @@ function classifyTransaction(transaction) {
         };
     }
 
+    if (/mare da papà|mare da papa/.test(normalizedDescription)) {
+        return {
+            ...transaction,
+            financialType: "OCCASIONALE",
+            classificationReason: "spesa occasionale per svago",
+        };
+    }
+
     // Amazon Prime è un abbonamento ricorrente e deve essere valutato
     // prima della regola generica Amazon.
     if (/amazon prime/.test(normalizedDescription)) {
