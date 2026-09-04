@@ -46,11 +46,13 @@ export function buildMerchantClusters(transactions = []) {
 
     clusterProfiles.forEach(cluster => {
         const representative = cluster.merchant;
+        const representativeProfile = cluster.merchants.find(profile => profile.merchant === representative);
+        const clusterId = representativeProfile?.contextMerchant || representative;
         const clusterConfidence = calculateClusterConfidence(cluster.merchants, representative);
 
         cluster.merchants.forEach(profile => {
             result.set(profile.merchant, {
-                clusterId: representative,
+                clusterId,
                 clusterConfidence,
                 clusterMerchants: cluster.merchants.map(item => item.merchant),
             });
