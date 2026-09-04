@@ -13,6 +13,9 @@ export function normalizeMerchantContext(merchant) {
         .replace(/\b(?:terminal|term|pos|operazione|transazione|autorizzazione|codice)\s*[a-z0-9-]{4,}\b/g, " ")
         .replace(/\b(?:srl|srls|snc|sas|sapa|spa|gmbh|ltd|llc|inc|corp)\b/g, " ")
         .replace(/\bpresso\b/g, " ")
+        .replace(/\b(?:citta|sant|angelo|pescara|montesilvano|silvi|pescasseroli|atri|pineto|montesil)\b/g, " ")
+        .replace(/\b(?:via|viale|piazza|strada|corso)\b(?:\s+[a-z0-9]+){0,4}/g, " ")
+        .replace(/\b\d{2,}\b/g, " ")
         .replace(/\s+/g, " ")
         .trim();
 }
