@@ -1,4 +1,5 @@
 import normalizeMerchant from "./merchantNormalizer";
+import { buildMerchantClusters, getMerchantCluster } from "./merchantClusterer";
 
 /**
  * Estrae feature descrittive dalle transazioni storiche.
@@ -14,6 +15,7 @@ import normalizeMerchant from "./merchantNormalizer";
 export function extractFinancialFeatures(transactions = []) {
     const rows = Array.isArray(transactions) ? transactions : [];
     const merchantStats = buildMerchantStats(rows);
+    const merchantClusters = buildMerchantClusters(rows);
 
     return rows.map(transaction => {
         const amount = Number(transaction.amount);
@@ -21,10 +23,14 @@ export function extractFinancialFeatures(transactions = []) {
         const date = String(transaction.transaction_date ?? "");
         const merchant = normalizeMerchant(transaction.description);
         const stats = merchantStats.get(merchant) ?? emptyMerchantStats();
+        const cluster = getMerchantCluster(merchantClusters, merchant);
 
         return {
             transactionId: transaction.id,
             merchant,
+            merchantClusterId: cluster.clusterId,
+            merchantClusterConfidence: cluster.clusterConfidence,
+            merchantClusterMembers: cluster.clusterMerchants,
             categoryId: transaction.category_id ?? null,
             categoryName: transaction.category_name ?? null,
             transactionType: transaction.transaction_type ?? null,
@@ -93,7 +99,6 @@ function emptyMerchantStats() {
         averageAmount: 0,
         minAmount: null,
         maxAmount: null,
-        totalAmount: 0,
         months: new Set(),
     };
 }
