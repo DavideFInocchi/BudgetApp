@@ -6,6 +6,8 @@ import normalizeMerchant from "./merchantNormalizer";
  * Il clustering e' volutamente conservativo:
  * - la categoria deve essere compatibile quando entrambe sono disponibili;
  * - la similarita' testuale da sola non basta per i nomi corti o generici;
+ * - token accessori (localita', suffissi societari e rumore tecnico) vengono
+ *   esclusi dal confronto, ma restano nel merchant normalizzato originale;
  * - ogni cluster conserva un confidence score e il merchant rappresentativo.
  */
 export function buildMerchantClusters(transactions = []) {
@@ -104,13 +106,19 @@ function getClusterConfidence(left, right) {
 
     const leftTokens = tokenize(left.merchant);
     const rightTokens = tokenize(right.merchant);
+    const leftCoreTokens = getCoreTokens(leftTokens);
+    const rightCoreTokens = getCoreTokens(rightTokens);
 
-    if (hasGenericShortName(leftTokens) || hasGenericShortName(rightTokens)) {
+    if (haveSameCoreTokens(leftCoreTokens, rightCoreTokens)) {
+        return 0.96;
+    }
+
+    if (hasGenericShortName(leftCoreTokens) || hasGenericShortName(rightCoreTokens)) {
         return 0;
     }
 
     const editSimilarity = normalizedLevenshtein(left.merchant, right.merchant);
-    const tokenSimilarity = tokenSimilarityScore(leftTokens, rightTokens);
+    const tokenSimilarity = tokenSimilarityScore(leftCoreTokens, rightCoreTokens);
     const prefixSimilarity = prefixScore(left.merchant, right.merchant);
 
     return Math.max(
@@ -131,6 +139,21 @@ function areCategoriesCompatible(left, right) {
 
 function tokenize(value) {
     return value.split(/\s+/).filter(Boolean);
+}
+
+function getCoreTokens(tokens) {
+    return tokens.filter(token => !ACCESSORY_TOKENS.has(token));
+}
+
+function haveSameCoreTokens(leftTokens, rightTokens) {
+    if (!leftTokens.length || !rightTokens.length) return false;
+
+    const leftSet = new Set(leftTokens);
+    const rightSet = new Set(rightTokens);
+
+    if (leftSet.size !== rightSet.size) return false;
+
+    return [...leftSet].every(token => rightSet.has(token));
 }
 
 function hasGenericShortName(tokens) {
@@ -241,13 +264,48 @@ function selectRepresentative(current, candidate, profiles) {
 function calculateClusterConfidence(profiles, representative) {
     if (profiles.length <= 1) return 1;
 
+    const representativeProfile = profiles.find(item => item.merchant === representative);
+    if (!representativeProfile) return 0;
+
     const scores = profiles
         .filter(profile => profile.merchant !== representative)
-        .map(profile => getClusterConfidence(profile, profiles.find(item => item.merchant === representative)));
+        .map(profile => getClusterConfidence(profile, representativeProfile));
 
     return scores.length
         ? scores.reduce((sum, score) => sum + score, 0) / scores.length
         : 1;
 }
+
+const ACCESSORY_TOKENS = new Set([
+    "spa",
+    "srl",
+    "srls",
+    "snc",
+    "sas",
+    "sapa",
+    "gmbh",
+    "ltd",
+    "llc",
+    "inc",
+    "corp",
+    "store",
+    "outlet",
+    "superstore",
+    "via",
+    "viale",
+    "piazza",
+    "strada",
+    "corso",
+    "pescara",
+    "montesilvano",
+    "montesil",
+    "silvi",
+    "pescasseroli",
+    "atri",
+    "pineto",
+    "citta",
+    "sant",
+    "angelo",
+]);
 
 export default buildMerchantClusters;
