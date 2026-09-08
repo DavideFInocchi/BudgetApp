@@ -45,10 +45,8 @@ const reportService = {
         if (periodError)
             throw periodError;
 
-
         const transactions =
             periodData ?? [];
-
 
         // ==============================
         // SUMMARY
@@ -65,7 +63,6 @@ const reportService = {
                 0
             );
 
-
         const expenses = transactions
             .filter(
                 transaction =>
@@ -73,15 +70,12 @@ const reportService = {
             )
             .reduce(
                 (total, transaction) =>
-                    total +
-                    Math.abs(Number(transaction.amount)),
+                    total + Math.abs(Number(transaction.amount)),
                 0
             );
 
-
         const balance =
             income - expenses;
-
 
         const months =
             getMonthsInPeriod(
@@ -89,52 +83,34 @@ const reportService = {
                 period.to
             );
 
-
         const averageMonthlyBalance =
             months.length > 0
                 ? balance / months.length
                 : 0;
-
 
         // ==============================
         // RISULTATO
         // ==============================
 
         return {
-
             income,
-
             expenses,
-
             balance,
-
             averageMonthlyBalance,
-
             months,
-
             monthlyBalance:
                 buildMonthlyBalance(
                     transactions
                 )
-
         };
 
     },
     async getFocusDistribution(focusMonth) {
 
-        const { data, error } = await supabase
-
-            .from("vw_transactions")
-
-            .select(
-                "transaction_date, transaction_type, amount, balance_type"
-            );
-
-        if (error)
-            throw error;
+        const data = await fetchAllTransactions();
 
         return buildBalanceDistribution(
-            data ?? [],
+            data,
             focusMonth
         );
 
@@ -167,6 +143,43 @@ const reportService = {
 
     }
 };
+
+async function fetchAllTransactions() {
+
+    const pageSize = 500;
+    const transactions = [];
+    let from = 0;
+
+    while (true) {
+
+        const {
+            data,
+            error
+        } = await supabase
+            .from("vw_transactions")
+            .select(
+                "transaction_date, transaction_type, amount, balance_type"
+            )
+            .range(
+                from,
+                from + pageSize - 1
+            );
+
+        if (error)
+            throw error;
+
+        const page = data ?? [];
+        transactions.push(...page);
+
+        if (page.length < pageSize)
+            break;
+
+        from += pageSize;
+
+    }
+
+    return transactions;
+}
 
 function getMonthsInPeriod(from, to) {
 
