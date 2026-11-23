@@ -21,15 +21,15 @@ const projectionService = {
 
         const transactions = data ?? [];
 
-        const monthly =
-            buildMonthlyData(transactions);
-
         const currentDate = new Date();
 
         const currentMonth =
             `${currentDate.getFullYear()}-${String(
                 currentDate.getMonth() + 1
             ).padStart(2, "0")}`;
+
+        const monthly =
+            buildMonthlyData(transactions, currentMonth);
 
         return monthly
 
@@ -64,16 +64,17 @@ const projectionService = {
 
         const transactions = data ?? [];
 
-        const monthly = buildMonthlyData(
-            transactions
-        );
-
         const currentDate = new Date();
 
         const currentMonth =
             `${currentDate.getFullYear()}-${String(
                 currentDate.getMonth() + 1
             ).padStart(2, "0")}`;
+
+        const monthly = buildMonthlyData(
+            transactions,
+            currentMonth
+        );
 
         const completedMonths =
             monthly.filter(
@@ -166,7 +167,7 @@ const projectionService = {
 
 };
 
-function buildMonthlyData(transactions) {
+function buildMonthlyData(transactions, currentMonth) {
 
     const months = new Map();
 
@@ -268,6 +269,37 @@ function buildMonthlyData(transactions) {
             current.extraordinaryBalance;
 
     });
+
+    // Inserisce anche i mesi conclusi senza movimenti: devono comparire
+    // nello storico e non spostare indietro l’inizio della proiezione.
+    const existingMonths = [...months.values()]
+        .sort((a, b) => a.month.localeCompare(b.month));
+
+    if (existingMonths.length) {
+        const cursor = new Date(`${existingMonths[0].month}-01T00:00:00`);
+        const endDate = new Date(`${currentMonth}-01T00:00:00`);
+
+        while (cursor < endDate) {
+            const month = `${cursor.getFullYear()}-${String(
+                cursor.getMonth() + 1
+            ).padStart(2, "0")}`;
+
+            if (!months.has(month)) {
+                months.set(month, {
+                    month,
+                    ordinaryIncome: 0,
+                    ordinaryExpenses: 0,
+                    ordinaryBalance: 0,
+                    extraordinaryIncome: 0,
+                    extraordinaryExpenses: 0,
+                    extraordinaryBalance: 0,
+                    totalBalance: 0
+                });
+            }
+
+            cursor.setMonth(cursor.getMonth() + 1);
+        }
+    }
 
     return [...months.values()]
 
