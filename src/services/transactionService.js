@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { formatSqlDate } from "../utils/dateUtils";
+import { fetchAllRows } from "./fetchAllRows";
 const TABLE = "transactions";
 
 
@@ -8,49 +9,26 @@ const transactionService = {
 
     async getAll() {
 
-        const { data, error } = await supabase
-
-            .from("vw_transactions")
-
-            .select("*")
-
-            .order("transaction_date", { ascending: false })
-
-            .order("created_at", { ascending: false });
-        if (error)
-            throw error;
-
-        return data;
+        return fetchAllRows((from, to) =>
+            supabase.from("vw_transactions").select("*")
+                .order("transaction_date", { ascending: false })
+                .order("created_at", { ascending: false })
+                .order("id", { ascending: false }).range(from, to)
+        );
 
     
     },
 
     async getByPeriod(period) {
 
-        const { data, error } = await supabase
-
-            .from("vw_transactions")
-
-            .select("*")
-
-            .gte(
-                "transaction_date",
-                formatSqlDate(period.from)
-            )
-
-            .lte(
-                "transaction_date",
-                formatSqlDate(period.to)
-            )
-
-            .order("transaction_date", { ascending: false })
-
-            .order("created_at", { ascending: false });
-
-        if (error)
-            throw error;
-
-        return data;
+        return fetchAllRows((from, to) =>
+            supabase.from("vw_transactions").select("*")
+                .gte("transaction_date", formatSqlDate(period.from))
+                .lte("transaction_date", formatSqlDate(period.to))
+                .order("transaction_date", { ascending: false })
+                .order("created_at", { ascending: false })
+                .order("id", { ascending: false }).range(from, to)
+        );
 
     },
     
@@ -166,16 +144,13 @@ const transactionService = {
 
     async getAverageSalary(months = 6) {
 
-        const { data, error } = await supabase
-            .from("vw_transactions")
-            .select(
-                "amount, transaction_date, category_name"
-            )
-            .eq("category_name", "Stipendio")
-            .order("transaction_date", { ascending: false });
-
-        if (error)
-            throw error;
+        const data = await fetchAllRows((from, to) =>
+            supabase.from("vw_transactions")
+                .select("id, amount, transaction_date, category_name")
+                .eq("category_name", "Stipendio")
+                .order("transaction_date", { ascending: false })
+                .order("id", { ascending: false }).range(from, to)
+        );
 
         const monthlySalaries = new Map();
 
@@ -231,13 +206,17 @@ const transactionService = {
 
         }
 
-        const { data, error } = await supabase
-            .from(TABLE)
-            .select("id, source_fingerprint")
-            .in("source_fingerprint", fingerprints);
-
-        if (error)
-            throw error;
+        const data = [];
+        const fingerprintBatchSize = 400;
+        for (let index = 0; index < fingerprints.length; index += fingerprintBatchSize) {
+            const batch = fingerprints.slice(index, index + fingerprintBatchSize);
+            const rows = await fetchAllRows((from, to) =>
+                supabase.from(TABLE).select("id, source_fingerprint")
+                    .in("source_fingerprint", batch)
+                    .order("id", { ascending: true }).range(from, to)
+            );
+            data.push(...rows);
+        }
 
         const existingFingerprints = new Set(
             data.map(transaction =>
@@ -280,21 +259,15 @@ const transactionService = {
             )
         ];
 
-        const { data, error } = await supabase
-            .from(TABLE)
-            .select(`
-                id,
-                transaction_date,
-                amount,
-                transaction_type,
-                description,
-                category_id
+        const data = await fetchAllRows((from, to) =>
+            supabase.from(TABLE).select(`
+                id, transaction_date, amount, transaction_type, description, category_id
             `)
-            .in("transaction_date", dates)
-            .is("source_fingerprint", null);
-
-        if (error)
-            throw error;
+                .in("transaction_date", dates)
+                .is("source_fingerprint", null)
+                .order("transaction_date", { ascending: true })
+                .order("id", { ascending: true }).range(from, to)
+        );
 
         return transactions.map(transaction => {
 
