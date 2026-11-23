@@ -72,7 +72,7 @@ export default function ReportProjection({
         datasets: [
 
     {
-        label: "Saldo ordinario",
+        label: "Saldo ordinario cumulato",
 
         data: ordinaryValues,
 
@@ -101,7 +101,7 @@ export default function ReportProjection({
     },
 
     {
-        label: "Saldo totale",
+        label: "Saldo totale cumulato",
 
         data: totalValues,
 
@@ -208,17 +208,58 @@ export default function ReportProjection({
 
                     label: context => {
 
-                        if (
-                            context.dataset.label ===
-                            "Zero"
-                        ) {
-                            return null;
+                        if (context.dataset.label === "Zero") return null;
+
+                        return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+
+                    },
+
+                    afterBody: context => {
+                        const point = context[0];
+                        if (!point) return [];
+
+                        const dataIndex = point.dataIndex;
+
+                        if (dataIndex < historical.length) {
+                            const month = historical[dataIndex];
+                            const ordinaryBalance = Number(month.ordinaryBalance) || 0;
+                            const extraordinaryBalance = Number(month.extraordinaryBalance) || 0;
+                            const totalBalance = Number(month.totalBalance) || 0;
+
+                            return [
+                                "",
+                                "Movimenti del mese",
+                                `Entrate ordinarie: ${formatCurrency(month.ordinaryIncome ?? 0)}`,
+                                `Uscite ordinarie: ${formatCurrency(-(month.ordinaryExpenses ?? 0))}`,
+                                `Saldo ordinario del mese: ${formatCurrency(ordinaryBalance)}`,
+                                `Entrate straordinarie: ${formatCurrency(month.extraordinaryIncome ?? 0)}`,
+                                `Uscite straordinarie: ${formatCurrency(-(month.extraordinaryExpenses ?? 0))}`,
+                                `Saldo straordinario del mese: ${formatCurrency(extraordinaryBalance)}`,
+                                `Saldo totale del mese: ${formatCurrency(totalBalance)}`,
+                                "",
+                                `Saldo straordinario cumulato: ${formatCurrency(month.cumulativeExtraordinaryBalance ?? 0)}`
+                            ];
                         }
 
-                        return `${context.dataset.label}: ${formatCurrency(
-                            context.parsed.y
-                        )}`;
+                        const projected = projection[dataIndex - historical.length];
+                        if (!projected) return [];
 
+                        const projectedExtraordinary =
+                            (Number(projected.totalBalance) || 0) -
+                            (Number(projected.ordinaryBalance) || 0);
+                        const cumulativeExtraordinary =
+                            (Number(projected.cumulativeTotalBalance) || 0) -
+                            (Number(projected.cumulativeOrdinaryBalance) || 0);
+
+                        return [
+                            "",
+                            "Stima media mensile",
+                            `Saldo ordinario previsto: ${formatCurrency(projected.ordinaryBalance ?? 0)}`,
+                            `Saldo straordinario previsto: ${formatCurrency(projectedExtraordinary)}`,
+                            `Saldo totale previsto: ${formatCurrency(projected.totalBalance ?? 0)}`,
+                            "",
+                            `Saldo straordinario cumulato previsto: ${formatCurrency(cumulativeExtraordinary)}`
+                        ];
                     }
 
                 }
