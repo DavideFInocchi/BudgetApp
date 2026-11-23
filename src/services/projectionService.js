@@ -1,25 +1,14 @@
 import { supabase } from "./supabase";
 import { roundCurrency } from "../utils/currency";
+import { fetchAllRows } from "./fetchAllRows";
 const projectionService = {
     async getAvailablePeriods() {
 
-        const { data, error } = await supabase
-
-            .from("vw_transactions")
-
-            .select(
-                "transaction_date"
-            )
-
-            .order(
-                "transaction_date",
-                { ascending: true }
-            );
-
-        if (error)
-            throw error;
-
-        const transactions = data ?? [];
+        const transactions = await fetchAllRows((from, to) =>
+            supabase.from("vw_transactions").select("id, transaction_date")
+                .order("transaction_date", { ascending: true })
+                .order("id", { ascending: true }).range(from, to)
+        );
 
         const currentDate = new Date();
 
@@ -46,23 +35,12 @@ const projectionService = {
     },
     async getProjection(period) {
 
-        const { data, error } = await supabase
-
-            .from("vw_transactions")
-
-            .select(
-                "transaction_date, transaction_type, amount, balance_type"            
-            )
-
-            .order(
-                "transaction_date",
-                { ascending: true }
-            );
-
-        if (error)
-            throw error;
-
-        const transactions = data ?? [];
+        const transactions = await fetchAllRows((from, to) =>
+            supabase.from("vw_transactions")
+                .select("id, transaction_date, transaction_type, amount, balance_type")
+                .order("transaction_date", { ascending: true })
+                .order("id", { ascending: true }).range(from, to)
+        );
 
         const currentDate = new Date();
 

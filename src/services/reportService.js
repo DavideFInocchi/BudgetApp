@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { formatSqlDate } from "../utils/dateUtils";
+import { fetchAllRows } from "./fetchAllRows";
 
 const reportService = {
     async getPeriods() {
@@ -25,28 +26,14 @@ const reportService = {
         // DATI DEL PERIODO SELEZIONATO
         // ==============================
 
-        const { data: periodData, error: periodError } =
-            await supabase
-                .from("vw_transactions")
-                .select(
-                    "transaction_date, transaction_type, amount, balance_type"
-                )
-                .gte(
-                    "transaction_date",
-                    formatSqlDate(period.from)
-                )
-                .lt(
-                    "transaction_date",
-                    formatSqlDate(
-                        getNextMonth(period.to)
-                    )
-                );
-
-        if (periodError)
-            throw periodError;
-
-        const transactions =
-            periodData ?? [];
+        const transactions = await fetchAllRows((from, to) =>
+            supabase.from("vw_transactions")
+                .select("id, transaction_date, transaction_type, amount, balance_type")
+                .gte("transaction_date", formatSqlDate(period.from))
+                .lt("transaction_date", formatSqlDate(getNextMonth(period.to)))
+                .order("transaction_date", { ascending: true })
+                .order("id", { ascending: true }).range(from, to)
+        );
 
         // ==============================
         // SUMMARY
@@ -117,68 +104,25 @@ const reportService = {
     },
     async getTransactions(period) {
 
-        const {
-            data,
-            error
-        } = await supabase
-            .from("vw_transactions")
-            .select(
-                "transaction_date, transaction_type, amount, balance_type, category_id, category_name"
-            )
-            .gte(
-                "transaction_date",
-                formatSqlDate(period.from)
-            )
-            .lt(
-                "transaction_date",
-                formatSqlDate(
-                    getNextMonth(period.to)
-                )
-            );
-
-        if (error)
-            throw error;
-
-        return data ?? [];
+        return fetchAllRows((from, to) =>
+            supabase.from("vw_transactions")
+                .select("id, transaction_date, transaction_type, amount, balance_type, category_id, category_name")
+                .gte("transaction_date", formatSqlDate(period.from))
+                .lt("transaction_date", formatSqlDate(getNextMonth(period.to)))
+                .order("transaction_date", { ascending: true })
+                .order("id", { ascending: true }).range(from, to)
+        );
 
     }
 };
 
 async function fetchAllTransactions() {
-
-    const pageSize = 500;
-    const transactions = [];
-    let from = 0;
-
-    while (true) {
-
-        const {
-            data,
-            error
-        } = await supabase
-            .from("vw_transactions")
-            .select(
-                "transaction_date, transaction_type, amount, balance_type"
-            )
-            .range(
-                from,
-                from + pageSize - 1
-            );
-
-        if (error)
-            throw error;
-
-        const page = data ?? [];
-        transactions.push(...page);
-
-        if (page.length < pageSize)
-            break;
-
-        from += pageSize;
-
-    }
-
-    return transactions;
+    return fetchAllRows((from, to) =>
+        supabase.from("vw_transactions")
+            .select("id, transaction_date, transaction_type, amount, balance_type")
+            .order("transaction_date", { ascending: true })
+            .order("id", { ascending: true }).range(from, to)
+    );
 }
 
 function getMonthsInPeriod(from, to) {
