@@ -10,7 +10,11 @@ export function useProjectionPeriods() {
         queryKey: ["projection-periods"],
 
         queryFn: () =>
-            projectionService.getAvailablePeriods()
+            projectionService.getAvailablePeriods(),
+
+        // Ricalcola i periodi anche se il report resta aperto al cambio mese.
+        refetchInterval: 60 * 60 * 1000,
+        refetchOnWindowFocus: true
 
     });
 
